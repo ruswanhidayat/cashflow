@@ -46,9 +46,15 @@ export default async function BendaharaPage() {
   const user = users[0];
 
   const periods = await sql`
-    SELECT id
+    SELECT
+      id,
+      year,
+      month,
+      start_date,
+      end_date,
+      status
     FROM billing_periods
-    LIMIT 1
+    LIMIT 5
   `;
 
   const activePeriod = periods.find(
@@ -65,10 +71,14 @@ export default async function BendaharaPage() {
         <h2>Billing Period Test</h2>
 
         <p>
-          {periods.length > 0
-            ? `Billing period ditemukan: ${periods[0].id}`
-            : "Billing period belum ada data."}
+          Jumlah periode: {periods.length}
         </p>
+
+        {periods.map((period) => (
+          <p key={period.id}>
+            {period.id} - {period.year} - {period.month} - {period.status}
+          </p>
+        ))}
       </section>
 
       <p>User ID: {user.id}</p>
