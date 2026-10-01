@@ -46,16 +46,9 @@ export default async function BendaharaPage() {
   const user = users[0];
 
   const periods = await sql`
-    SELECT
-      id,
-      year,
-      month,
-      start_date,
-      end_date,
-      status
+    SELECT id
     FROM billing_periods
-    ORDER BY year DESC, month DESC
-    LIMIT 5
+    LIMIT 1
   `;
 
   const activePeriod = periods.find(
@@ -69,23 +62,13 @@ export default async function BendaharaPage() {
       <p>{user.position_name}</p>
 
       <section>
-        <h2>Periode Aktif</h2>
+        <h2>Billing Period Test</h2>
 
-        {activePeriod ? (
-          <div>
-            <p>
-              {activePeriod.month}/{activePeriod.year}
-            </p>
-
-            <p>
-              {activePeriod.start_date} - {activePeriod.end_date}
-            </p>
-
-            <p>Status: {activePeriod.status}</p>
-          </div>
-        ) : (
-          <p>Tidak ada periode aktif.</p>
-        )}
+        <p>
+          {periods.length > 0
+            ? `Billing period ditemukan: ${periods[0].id}`
+            : "Billing period belum ada data."}
+        </p>
       </section>
 
       <p>User ID: {user.id}</p>
