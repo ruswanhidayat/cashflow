@@ -4,7 +4,9 @@ import { sql } from "@/lib/db";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+
     const employeeId = body.employeeId?.trim();
+    const roleCode = body.roleCode?.trim();
 
     if (!employeeId) {
       return NextResponse.json(
@@ -54,30 +56,45 @@ export async function POST(request: Request) {
       );
     }
 
-    if (roles.length > 1) {
-      return NextResponse.json({
-        requiresRoleSelection: true,
-        user: {
-          id: user.id,
-          employeeId: user.employee_id,
-          name: user.name,
-        },
-        roles,
-      });
-    }
+    let selectedRole;
 
-    const role = roles[0];
+    if (roles.length === 1) {
+      selectedRole = roles[0];
+    } else {
+      if (!roleCode) {
+        return NextResponse.json({
+          requiresRoleSelection: true,
+          user: {
+            id: user.id,
+            employeeId: user.employee_id,
+            name: user.name,
+          },
+          roles,
+        });
+      }
+
+      selectedRole = roles.find(
+        (role) => role.code === roleCode
+      );
+
+      if (!selectedRole) {
+        return NextResponse.json(
+          { message: "Role yang dipilih tidak valid." },
+          { status: 403 }
+        );
+      }
+    }
 
     const response = NextResponse.json({
       success: true,
-      role: role.code,
+      role: selectedRole.code,
     });
 
     response.cookies.set(
       "session",
       JSON.stringify({
         userId: user.id,
-        role: role.code,
+        role: selectedRole.code,
       }),
       {
         httpOnly: true,
