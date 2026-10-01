@@ -85,23 +85,28 @@ export async function POST(request: Request) {
       }
     }
 
+    const now = Date.now();
+
     const response = NextResponse.json({
-      success: true,
-      role: selectedRole.code,
+    success: true,
+    role: selectedRole.code,
     });
 
     response.cookies.set(
-      "session",
-      JSON.stringify({
+    "session",
+    JSON.stringify({
         userId: user.id,
         role: selectedRole.code,
-      }),
-      {
+        loginAt: now,
+        lastActivityAt: now,
+    }),
+    {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
-      }
+        maxAge: 60 * 60 * 3,
+    }
     );
 
     return response;

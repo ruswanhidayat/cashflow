@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
+import LogoutButton from "./logout-button";
 
 export default async function HomePage() {
   const cookieStore = await cookies();
@@ -68,6 +69,7 @@ export default async function HomePage() {
 
   return (
     <main>
+    <LogoutButton />
       <h1>Halo, {user.name}</h1>
 
       <p>{user.position_name}</p>
