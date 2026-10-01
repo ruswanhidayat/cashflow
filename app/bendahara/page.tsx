@@ -75,6 +75,13 @@ export default async function BendaharaPage() {
           Jumlah periode: {periods.length}
         </p>
 
+        <p>
+          Periode aktif:{" "}
+          {activePeriod
+            ? `${activePeriod.year}/${activePeriod.month}`
+            : "Tidak ada"}
+        </p>
+
         {periods.map((period) => (
           <p key={period.id}>
             {period.id} - {period.year} - {period.month} - {period.status}
