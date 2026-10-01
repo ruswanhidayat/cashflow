@@ -1,27 +1,86 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+
 export default function LoginPage() {
+  const router = useRouter();
+
+  const [employeeId, setEmployeeId] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          employeeId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Login gagal.");
+        return;
+      }
+
+      if (data.roles.length === 1) {
+        const role = data.roles[0].code;
+
+        if (role === "USER") {
+          router.push("/home");
+          return;
+        }
+
+        if (role === "BEND") {
+          router.push("/bendahara");
+          return;
+        }
+      }
+
+      // Untuk user dengan lebih dari satu role,
+      // sementara kita tampilkan error.
+      setError("User memiliki lebih dari satu role.");
+    } catch {
+      setError("Tidak dapat terhubung ke server.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <main className="login-page">
-      <div className="login-card">
-        <h1>Login</h1>
+    <main>
+      <h1>Login</h1>
 
-        <p>Masuk untuk melihat status pembayaran kas Anda.</p>
-
-        <form className="login-form">
+      <form onSubmit={handleSubmit}>
+        <div>
           <label htmlFor="employeeId">ID Pegawai</label>
 
           <input
             id="employeeId"
-            name="employeeId"
             type="text"
-            placeholder="Masukkan ID Pegawai"
-            autoComplete="off"
+            value={employeeId}
+            onChange={(event) => setEmployeeId(event.target.value)}
+            required
           />
+        </div>
 
-          <button type="submit">
-            Masuk
-          </button>
-        </form>
-      </div>
+        {error && <p>{error}</p>}
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Memproses..." : "Masuk"}
+        </button>
+      </form>
     </main>
   );
 }
