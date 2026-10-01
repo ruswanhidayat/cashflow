@@ -82,6 +82,16 @@ export default async function BendaharaPage() {
             : "Tidak ada"}
         </p>
 
+        {activePeriod && (
+          <p>
+            Periode:
+            {" "}
+            {String(activePeriod.start_date)}
+            {" - "}
+            {String(activePeriod.end_date)}
+          </p>
+        )}
+
         {periods.map((period) => (
           <p key={period.id}>
             {period.id} - {period.year} - {period.month} - {period.status}
