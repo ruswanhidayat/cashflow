@@ -54,6 +54,7 @@ export default async function BendaharaPage() {
       end_date,
       status
     FROM billing_periods
+    ORDER BY year DESC, month DESC
     LIMIT 5
   `;
 
