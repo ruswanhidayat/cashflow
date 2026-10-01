@@ -54,15 +54,40 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({
-      user: {
-        id: user.id,
-        employeeId: user.employee_id,
-        name: user.name,
-        positionId: user.position_id,
-      },
-      roles,
+    if (roles.length > 1) {
+      return NextResponse.json({
+        requiresRoleSelection: true,
+        user: {
+          id: user.id,
+          employeeId: user.employee_id,
+          name: user.name,
+        },
+        roles,
+      });
+    }
+
+    const role = roles[0];
+
+    const response = NextResponse.json({
+      success: true,
+      role: role.code,
     });
+
+    response.cookies.set(
+      "session",
+      JSON.stringify({
+        userId: user.id,
+        role: role.code,
+      }),
+      {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+      }
+    );
+
+    return response;
   } catch (error) {
     console.error("Login error:", error);
 
