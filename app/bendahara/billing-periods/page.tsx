@@ -66,31 +66,71 @@ export default async function BillingPeriodsPage() {
     ORDER BY r.id
   `) as Role[];
 
+  const periods = await sql`
+    SELECT
+        id,
+        year,
+        month,
+        start_date,
+        end_date,
+        status
+    FROM billing_periods
+    ORDER BY year DESC, month ASC
+    `;
+
   return (
     <AppShell
-      userName={user.name}
-      currentRole={session.role}
-      roles={roles}
+        userName={user.name}
+        currentRole={session.role}
+        roles={roles}
     >
-      <div className="page-heading">
+        <div className="page-heading">
         <div>
-          <h1>Billing Period</h1>
-          <p>Kelola periode tagihan.</p>
+            <h1>Billing Period</h1>
+            <p>Kelola periode tagihan.</p>
         </div>
 
         <button className="primary-button">
-          Generate Period
+            Generate Period
         </button>
-      </div>
-
-      <div className="card">
-        <div className="empty-state">
-          <h3>Belum ada billing period</h3>
-          <p>
-            Billing period yang sudah dibuat akan ditampilkan di sini.
-          </p>
         </div>
-      </div>
+
+        <div className="card">
+        {periods.length === 0 ? (
+            <div className="empty-state">
+            <h3>Belum ada billing period</h3>
+            <p>
+                Billing period yang sudah dibuat akan ditampilkan di sini.
+            </p>
+            </div>
+        ) : (
+            <div className="table-wrapper">
+            <table className="data-table">
+                <thead>
+                <tr>
+                    <th>Tahun</th>
+                    <th>Bulan</th>
+                    <th>Mulai</th>
+                    <th>Selesai</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {periods.map((period) => (
+                    <tr key={period.id}>
+                    <td>{period.year}</td>
+                    <td>{period.month}</td>
+                    <td>{period.start_date}</td>
+                    <td>{period.end_date}</td>
+                    <td>{period.status}</td>
+                    </tr>
+                ))}
+                </tbody>
+            </table>
+            </div>
+        )}
+        </div>
     </AppShell>
-  );
+    );
 }
