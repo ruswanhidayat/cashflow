@@ -16,6 +16,12 @@ export default async function HomePage() {
     role: string;
   };
 
+  type Role = {
+    id: number;
+    code: string;
+    name: string;
+  };
+
   try {
     session = JSON.parse(sessionCookie.value);
   } catch {
@@ -67,18 +73,14 @@ export default async function HomePage() {
     0
   );
 
-  const roles = await sql`
-    SELECT
-      r.id,
-      r.code,
-      r.name
+  const roles = (await sql`
+    SELECT r.id, r.code, r.name
     FROM user_roles ur
-    INNER JOIN roles r
-      ON r.id = ur.role_id
+    INNER JOIN roles r ON r.id = ur.role_id
     WHERE ur.user_id = ${user.id}
       AND r.is_active = TRUE
     ORDER BY r.id
-  `;
+  `) as Role[];
 
   return (
     <AppShell
