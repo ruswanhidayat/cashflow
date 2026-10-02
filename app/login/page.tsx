@@ -14,6 +14,8 @@ export default function LoginPage() {
 
   const [employeeId, setEmployeeId] = useState("");
   const [roles, setRoles] = useState<Role[]>([]);
+  const [showRoleModal, setShowRoleModal] = useState(false);
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -42,6 +44,7 @@ export default function LoginPage() {
 
       if (data.requiresRoleSelection) {
         setRoles(data.roles);
+        setShowRoleModal(true);
         return;
       }
 
@@ -63,10 +66,14 @@ export default function LoginPage() {
     }
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
     setRoles([]);
+    setShowRoleModal(false);
+
     await login();
   }
 
@@ -75,48 +82,87 @@ export default function LoginPage() {
   }
 
   return (
-    <main>
-      <h1>Login</h1>
+    <main className="login-page">
+      <section className="login-card">
+        <div className="login-brand">
+          <h1>CASHFLOW</h1>
 
-      {roles.length === 0 ? (
+          <p>
+            Kelola pencatatan kas dengan lebih sederhana.
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="employeeId">ID Pegawai</label>
+          <div className="form-group">
+            <label htmlFor="employeeId">
+              ID Pegawai
+            </label>
 
             <input
               id="employeeId"
+              className="form-input"
               type="text"
               value={employeeId}
-              onChange={(event) => setEmployeeId(event.target.value)}
+              onChange={(event) =>
+                setEmployeeId(event.target.value)
+              }
+              placeholder="Masukkan ID Pegawai"
               required
             />
           </div>
 
-          {error && <p>{error}</p>}
+          {error && (
+            <p className="error-message">
+              {error}
+            </p>
+          )}
 
-          <button type="submit" disabled={loading}>
+          <button
+            type="submit"
+            className="primary-button"
+            disabled={loading}
+          >
             {loading ? "Memproses..." : "Masuk"}
           </button>
         </form>
-      ) : (
-        <section>
-          <h2>Masuk sebagai</h2>
+      </section>
 
-          <p>Pilih role yang ingin digunakan.</p>
+      {showRoleModal && (
+        <div className="modal-overlay">
+          <section className="modal-card">
+            <h2>Masuk sebagai</h2>
 
-          {roles.map((role) => (
-            <button
-              key={role.id}
-              type="button"
-              onClick={() => handleRoleSelection(role.code)}
-              disabled={loading}
-            >
-              {role.name}
-            </button>
-          ))}
+            <p>
+              Akun ini memiliki lebih dari satu role.
+              Pilih role yang ingin digunakan.
+            </p>
 
-          {error && <p>{error}</p>}
-        </section>
+            <div className="role-list">
+              {roles.map((role) => (
+                <button
+                  key={role.id}
+                  type="button"
+                  className="role-button"
+                  onClick={() =>
+                    handleRoleSelection(role.code)
+                  }
+                  disabled={loading}
+                >
+                  {role.name}
+                </button>
+              ))}
+            </div>
+
+            {error && (
+              <p
+                className="error-message"
+                style={{ marginTop: 16, marginBottom: 0 }}
+              >
+                {error}
+              </p>
+            )}
+          </section>
+        </div>
       )}
     </main>
   );

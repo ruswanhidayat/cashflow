@@ -1,7 +1,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Kas",
+  title: "Cashflow",
   description: "Aplikasi pencatatan pembayaran kas",
 };
 

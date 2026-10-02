@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
-import LogoutButton from "./logout-button";
+import AppShell from "../components/app-shell";
 
 export default async function HomePage() {
   const cookieStore = await cookies();
@@ -67,37 +67,98 @@ export default async function HomePage() {
     0
   );
 
+  const roles = await sql`
+    SELECT
+      r.id,
+      r.code,
+      r.name
+    FROM user_roles ur
+    INNER JOIN roles r
+      ON r.id = ur.role_id
+    WHERE ur.user_id = ${user.id}
+      AND r.is_active = TRUE
+    ORDER BY r.id
+  `;
+
   return (
-    <main>
-    <LogoutButton />
-      <h1>Halo, {user.name}</h1>
+    <AppShell
+      userName={user.name}
+      currentRole={session.role}
+      roles={roles}
+    >
+      <div className="page-heading">
+        <h1>Halo, {user.name}</h1>
 
-      <p>{user.position_name}</p>
+        <p>
+          {user.position_name ||
+            "Selamat datang di Cashflow."}
+        </p>
+      </div>
 
-      <section>
-        <h2>Tagihan Aktif</h2>
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-label">
+            Tagihan Aktif
+          </div>
+
+          <div className="stat-value">
+            {bills.length}
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-label">
+            Total Tagihan
+          </div>
+
+          <div className="stat-value">
+            Rp {totalAmount.toLocaleString("id-ID")}
+          </div>
+        </div>
+      </div>
+
+      <section className="content-card">
+        <div className="content-card-header">
+          <h2>Tagihan Aktif</h2>
+        </div>
 
         {bills.length === 0 ? (
-          <p>Tidak ada tagihan aktif.</p>
+          <div className="empty-state">
+            Tidak ada tagihan aktif.
+          </div>
         ) : (
           <>
-            {bills.map((bill) => (
-              <div key={bill.id}>
-                <strong>{bill.cash_type_name}</strong>
-                <span>
-                  Rp {Number(bill.amount).toLocaleString("id-ID")}
-                </span>
-              </div>
-            ))}
+            <div className="bill-list">
+              {bills.map((bill) => (
+                <div
+                  key={bill.id}
+                  className="bill-item"
+                >
+                  <span className="bill-name">
+                    {bill.cash_type_name}
+                  </span>
 
-            <hr />
+                  <span className="bill-amount">
+                    Rp{" "}
+                    {Number(
+                      bill.amount
+                    ).toLocaleString("id-ID")}
+                  </span>
+                </div>
+              ))}
+            </div>
 
-            <strong>
-              Total: Rp {totalAmount.toLocaleString("id-ID")}
-            </strong>
+            <div className="total-row">
+              <span>Total</span>
+
+              <span>
+                Rp{" "}
+                {totalAmount.toLocaleString("id-ID")}
+              </span>
+            </div>
           </>
         )}
       </section>
-    </main>
+    </AppShell>
   );
 }

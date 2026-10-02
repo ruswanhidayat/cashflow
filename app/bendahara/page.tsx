@@ -1,15 +1,13 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
+import AppShell from "../components/app-shell";
 
 export default async function BendaharaPage() {
-  console.time("BEND TOTAL");
-
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("session");
 
   if (!sessionCookie) {
-    console.timeEnd("BEND TOTAL");
     redirect("/login");
   }
 
@@ -21,16 +19,12 @@ export default async function BendaharaPage() {
   try {
     session = JSON.parse(sessionCookie.value);
   } catch {
-    console.timeEnd("BEND TOTAL");
     redirect("/login");
   }
 
   if (session.role !== "BEND") {
-    console.timeEnd("BEND TOTAL");
     redirect("/login");
   }
-
-  console.time("BEND USER");
 
   const users = await sql`
     SELECT
@@ -46,16 +40,11 @@ export default async function BendaharaPage() {
     LIMIT 1
   `;
 
-  console.timeEnd("BEND USER");
-
   if (users.length === 0) {
-    console.timeEnd("BEND TOTAL");
     redirect("/login");
   }
 
   const user = users[0];
-
-  console.time("BEND PERIOD");
 
   const periods = await sql`
     SELECT
@@ -70,13 +59,9 @@ export default async function BendaharaPage() {
     LIMIT 5
   `;
 
-  console.timeEnd("BEND PERIOD");
-
   const activePeriod = periods.find(
     (period) => period.status === "OPEN"
   );
-
-  console.time("BEND BILLS");
 
   const bills = activePeriod
     ? await sql`
@@ -88,61 +73,118 @@ export default async function BendaharaPage() {
       `
     : [];
 
-  console.timeEnd("BEND BILLS");
+  const roles = await sql`
+    SELECT
+      r.id,
+      r.code,
+      r.name
+    FROM user_roles ur
+    INNER JOIN roles r
+      ON r.id = ur.role_id
+    WHERE ur.user_id = ${user.id}
+      AND r.is_active = TRUE
+    ORDER BY r.id
+  `;
 
-  console.timeEnd("BEND TOTAL");
+  const totalBills = bills.reduce(
+    (total, bill) => total + Number(bill.amount),
+    0
+  );
 
   return (
-    <main>
-      <h1>Halo, {user.name}</h1>
-
-      <p>{user.position_name}</p>
-
-      <section>
-        <h2>Billing Period Test</h2>
-
-        <p>
-          Jumlah periode: {periods.length}
-        </p>
+    <AppShell
+      userName={user.name}
+      currentRole={session.role}
+      roles={roles}
+    >
+      <div className="page-heading">
+        <h1>Halo, {user.name}</h1>
 
         <p>
-          Periode aktif:{" "}
-          {activePeriod
-            ? `${activePeriod.year}/${activePeriod.month}`
-            : "Tidak ada"}
+          {user.position_name ||
+            "Dashboard Bendahara"}
         </p>
+      </div>
 
-        {activePeriod && (
-          <p>
-            Periode:{" "}
-            {String(activePeriod.start_date)}
-            {" - "}
-            {String(activePeriod.end_date)}
-          </p>
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-label">
+            Periode Aktif
+          </div>
+
+          <div className="stat-value">
+            {activePeriod
+              ? `${activePeriod.year}/${activePeriod.month}`
+              : "-"}
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-label">
+            Total Tagihan
+          </div>
+
+          <div className="stat-value">
+            Rp {totalBills.toLocaleString("id-ID")}
+          </div>
+        </div>
+      </div>
+
+      <section className="content-card">
+        <div className="content-card-header">
+          <h2>Billing Period</h2>
+        </div>
+
+        {activePeriod ? (
+          <>
+            <div className="bill-item">
+              <div>
+                <div className="bill-name">
+                  {activePeriod.year}/
+                  {activePeriod.month}
+                </div>
+
+                <div
+                  style={{
+                    marginTop: 4,
+                    color: "var(--text-secondary)",
+                    fontSize: 13,
+                  }}
+                >
+                  {String(activePeriod.start_date)}
+                  {" - "}
+                  {String(activePeriod.end_date)}
+                </div>
+              </div>
+
+              <span className="app-role">
+                {activePeriod.status}
+              </span>
+            </div>
+          </>
+        ) : (
+          <div className="empty-state">
+            Belum ada periode aktif.
+          </div>
         )}
-
-        {periods.map((period) => (
-          <p key={period.id}>
-            {period.id} - {period.year} - {period.month} - {period.status}
-          </p>
-        ))}
       </section>
 
-      <section>
-        <h2>Bill Test</h2>
+      <section
+        className="content-card"
+        style={{ marginTop: 16 }}
+      >
+        <div className="content-card-header">
+          <h2>Tagihan</h2>
+        </div>
 
-        <p>Jumlah bill: {bills.length}</p>
-
-        {bills.map((bill) => (
-          <p key={bill.id}>
-            {bill.id} - Rp{" "}
-            {Number(bill.amount).toLocaleString("id-ID")}
-          </p>
-        ))}
+        <div className="empty-state">
+          {bills.length === 0
+            ? "Belum ada tagihan pada periode aktif."
+            : `${bills.length} tagihan dengan total Rp ${totalBills.toLocaleString(
+                "id-ID"
+              )}.`}
+        </div>
       </section>
-
-      <p>User ID: {user.id}</p>
-      <p>Role: {session.role}</p>
-    </main>
+    </AppShell>
   );
 }
