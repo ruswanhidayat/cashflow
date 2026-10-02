@@ -62,13 +62,15 @@ export default async function BendaharaPage() {
     (period) => period.status === "OPEN"
   );
 
-  const bills = await sql`
-    SELECT
-      id,
-      amount
-    FROM bills
-    WHERE period_id = ${activePeriod.id}
-  `;
+  const bills = activePeriod
+    ? await sql`
+        SELECT
+          id,
+          amount
+        FROM bills
+        WHERE period_id = ${activePeriod.id}
+      `
+    : [];
 
   return (
     <main>
