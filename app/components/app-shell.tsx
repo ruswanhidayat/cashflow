@@ -26,6 +26,20 @@ export default function AppShell({
           CASHFLOW
         </div>
 
+        <nav className="app-nav">
+          {currentRole === "BEND" && (
+            <>
+              <a href="/bendahara">
+                Dashboard
+              </a>
+
+              <a href="/bendahara/billing-periods">
+                Billing Period
+              </a>
+            </>
+          )}
+        </nav>
+
         <div className="app-header-right">
           <span className="app-role">
             {currentRole === "BEND"
