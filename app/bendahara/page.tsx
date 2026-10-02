@@ -125,4 +125,22 @@ export default async function BendaharaPage() {
       <p>Role: {session.role}</p>
     </main>
   );
+
+  console.time("BEND TOTAL");
+
+  console.time("BEND USER");
+  const userResult = await sql`...`;
+  console.timeEnd("BEND USER");
+
+  console.time("BEND PERIOD");
+  const periods = await sql`...`;
+  console.timeEnd("BEND PERIOD");
+
+  console.time("BEND BILLS");
+  const bills = activePeriod
+    ? await sql`...`
+    : [];
+  console.timeEnd("BEND BILLS");
+
+  console.timeEnd("BEND TOTAL");
 }

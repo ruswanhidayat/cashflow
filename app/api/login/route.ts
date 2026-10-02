@@ -110,6 +110,41 @@ export async function POST(request: Request) {
     );
 
     return response;
+
+    console.time("LOGIN TOTAL");
+
+    console.time("USER QUERY");
+
+    const users = await sql`
+      SELECT
+        id,
+        employee_id,
+        name,
+        position_id
+      FROM users
+      WHERE employee_id = ${employeeId}
+        AND is_active = true
+      LIMIT 1
+    `;
+
+    console.timeEnd("USER QUERY");
+
+    console.time("ROLE QUERY");
+
+    const roles = await sql`
+      SELECT
+        r.id,
+        r.code,
+        r.name
+      FROM user_roles ur
+      JOIN roles r ON r.id = ur.role_id
+      WHERE ur.user_id = ${user.id}
+        AND r.is_active = true
+    `;
+
+    console.timeEnd("ROLE QUERY");
+
+    console.timeEnd("LOGIN TOTAL");
   } catch (error) {
     console.error("Login error:", error);
 
