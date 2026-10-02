@@ -58,6 +58,10 @@ export default async function BendaharaPage() {
     LIMIT 5
   `;
 
+  const activePeriod = periods.find(
+    (period) => period.status === "OPEN"
+  );
+
   const bills = await sql`
     SELECT
       id,
@@ -65,10 +69,6 @@ export default async function BendaharaPage() {
     FROM bills
     WHERE period_id = ${activePeriod.id}
   `;
-
-  const activePeriod = periods.find(
-    (period) => period.status === "OPEN"
-  );
 
   return (
     <main>
