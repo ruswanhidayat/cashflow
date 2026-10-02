@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { sql } from "@/lib/db";
 
+const SESSION_MAX_AGE = 60 * 60 * 3;
+
 export async function POST(request: Request) {
   try {
     const cookieStore = await cookies();
@@ -17,6 +19,8 @@ export async function POST(request: Request) {
     let session: {
       userId: number;
       role: string;
+      loginAt: number;
+      lastActivityAt: number;
     };
 
     try {
@@ -37,6 +41,10 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    // =========================================================
+    // Pastikan user memang memiliki role tersebut
+    // =========================================================
 
     const roles = await sql`
       SELECT
@@ -61,6 +69,18 @@ export async function POST(request: Request) {
 
     const now = Date.now();
 
+    // =========================================================
+    // Update active role
+    // =========================================================
+
+    session.role = roleCode;
+    session.lastActivityAt = now;
+
+    // loginAt TIDAK diubah
+    //
+    // loginAt tetap menentukan batas maksimal 3 jam
+    // lastActivityAt menentukan idle timeout 30 menit
+
     const response = NextResponse.json({
       success: true,
       role: roleCode,
@@ -68,18 +88,13 @@ export async function POST(request: Request) {
 
     response.cookies.set(
       "session",
-      JSON.stringify({
-        userId: session.userId,
-        role: roleCode,
-        loginAt: now,
-        lastActivityAt: now,
-      }),
+      JSON.stringify(session),
       {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
-        maxAge: 60 * 60 * 3,
+        maxAge: SESSION_MAX_AGE,
       }
     );
 
