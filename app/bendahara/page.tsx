@@ -3,10 +3,13 @@ import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
 
 export default async function BendaharaPage() {
+  console.time("BEND TOTAL");
+
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("session");
 
   if (!sessionCookie) {
+    console.timeEnd("BEND TOTAL");
     redirect("/login");
   }
 
@@ -18,12 +21,16 @@ export default async function BendaharaPage() {
   try {
     session = JSON.parse(sessionCookie.value);
   } catch {
+    console.timeEnd("BEND TOTAL");
     redirect("/login");
   }
 
   if (session.role !== "BEND") {
+    console.timeEnd("BEND TOTAL");
     redirect("/login");
   }
+
+  console.time("BEND USER");
 
   const users = await sql`
     SELECT
@@ -39,11 +46,16 @@ export default async function BendaharaPage() {
     LIMIT 1
   `;
 
+  console.timeEnd("BEND USER");
+
   if (users.length === 0) {
+    console.timeEnd("BEND TOTAL");
     redirect("/login");
   }
 
   const user = users[0];
+
+  console.time("BEND PERIOD");
 
   const periods = await sql`
     SELECT
@@ -58,9 +70,13 @@ export default async function BendaharaPage() {
     LIMIT 5
   `;
 
+  console.timeEnd("BEND PERIOD");
+
   const activePeriod = periods.find(
     (period) => period.status === "OPEN"
   );
+
+  console.time("BEND BILLS");
 
   const bills = activePeriod
     ? await sql`
@@ -71,6 +87,10 @@ export default async function BendaharaPage() {
         WHERE period_id = ${activePeriod.id}
       `
     : [];
+
+  console.timeEnd("BEND BILLS");
+
+  console.timeEnd("BEND TOTAL");
 
   return (
     <main>
@@ -94,8 +114,7 @@ export default async function BendaharaPage() {
 
         {activePeriod && (
           <p>
-            Periode:
-            {" "}
+            Periode:{" "}
             {String(activePeriod.start_date)}
             {" - "}
             {String(activePeriod.end_date)}
@@ -116,7 +135,8 @@ export default async function BendaharaPage() {
 
         {bills.map((bill) => (
           <p key={bill.id}>
-            {bill.id} - Rp {Number(bill.amount).toLocaleString("id-ID")}
+            {bill.id} - Rp{" "}
+            {Number(bill.amount).toLocaleString("id-ID")}
           </p>
         ))}
       </section>
@@ -125,22 +145,4 @@ export default async function BendaharaPage() {
       <p>Role: {session.role}</p>
     </main>
   );
-
-  console.time("BEND TOTAL");
-
-  console.time("BEND USER");
-  const userResult = await sql`...`;
-  console.timeEnd("BEND USER");
-
-  console.time("BEND PERIOD");
-  const periods = await sql`...`;
-  console.timeEnd("BEND PERIOD");
-
-  console.time("BEND BILLS");
-  const bills = activePeriod
-    ? await sql`...`
-    : [];
-  console.timeEnd("BEND BILLS");
-
-  console.timeEnd("BEND TOTAL");
 }

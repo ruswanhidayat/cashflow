@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 
 export async function POST(request: Request) {
+  const loginStart = Date.now();
+
   try {
     const body = await request.json();
 
@@ -15,6 +17,13 @@ export async function POST(request: Request) {
       );
     }
 
+    console.log("[LOGIN] Start", {
+      employeeId,
+      roleCode: roleCode || "(none)",
+    });
+
+    const userStart = Date.now();
+
     const users = await sql`
       SELECT
         u.id,
@@ -27,7 +36,15 @@ export async function POST(request: Request) {
       LIMIT 1
     `;
 
+    console.log(
+      `[LOGIN] User query: ${Date.now() - userStart} ms`
+    );
+
     if (users.length === 0) {
+      console.log(
+        `[LOGIN] Total: ${Date.now() - loginStart} ms`
+      );
+
       return NextResponse.json(
         { message: "ID Pegawai tidak ditemukan." },
         { status: 401 }
@@ -35,6 +52,8 @@ export async function POST(request: Request) {
     }
 
     const user = users[0];
+
+    const roleStart = Date.now();
 
     const roles = await sql`
       SELECT
@@ -49,7 +68,15 @@ export async function POST(request: Request) {
       ORDER BY r.id
     `;
 
+    console.log(
+      `[LOGIN] Role query: ${Date.now() - roleStart} ms`
+    );
+
     if (roles.length === 0) {
+      console.log(
+        `[LOGIN] Total: ${Date.now() - loginStart} ms`
+      );
+
       return NextResponse.json(
         { message: "User belum memiliki role." },
         { status: 403 }
@@ -62,6 +89,12 @@ export async function POST(request: Request) {
       selectedRole = roles[0];
     } else {
       if (!roleCode) {
+        console.log(
+          `[LOGIN] Role selection required - Total: ${
+            Date.now() - loginStart
+          } ms`
+        );
+
         return NextResponse.json({
           requiresRoleSelection: true,
           user: {
@@ -78,6 +111,10 @@ export async function POST(request: Request) {
       );
 
       if (!selectedRole) {
+        console.log(
+          `[LOGIN] Total: ${Date.now() - loginStart} ms`
+        );
+
         return NextResponse.json(
           { message: "Role yang dipilih tidak valid." },
           { status: 403 }
@@ -88,65 +125,38 @@ export async function POST(request: Request) {
     const now = Date.now();
 
     const response = NextResponse.json({
-    success: true,
-    role: selectedRole.code,
+      success: true,
+      role: selectedRole.code,
     });
 
     response.cookies.set(
-    "session",
-    JSON.stringify({
+      "session",
+      JSON.stringify({
         userId: user.id,
         role: selectedRole.code,
         loginAt: now,
         lastActivityAt: now,
-    }),
-    {
+      }),
+      {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
         maxAge: 60 * 60 * 3,
-    }
+      }
+    );
+
+    console.log(
+      `[LOGIN] Total: ${Date.now() - loginStart} ms`
     );
 
     return response;
-
-    console.time("LOGIN TOTAL");
-
-    console.time("USER QUERY");
-
-    const users = await sql`
-      SELECT
-        id,
-        employee_id,
-        name,
-        position_id
-      FROM users
-      WHERE employee_id = ${employeeId}
-        AND is_active = true
-      LIMIT 1
-    `;
-
-    console.timeEnd("USER QUERY");
-
-    console.time("ROLE QUERY");
-
-    const roles = await sql`
-      SELECT
-        r.id,
-        r.code,
-        r.name
-      FROM user_roles ur
-      JOIN roles r ON r.id = ur.role_id
-      WHERE ur.user_id = ${user.id}
-        AND r.is_active = true
-    `;
-
-    console.timeEnd("ROLE QUERY");
-
-    console.timeEnd("LOGIN TOTAL");
   } catch (error) {
     console.error("Login error:", error);
+
+    console.log(
+      `[LOGIN] Total (error): ${Date.now() - loginStart} ms`
+    );
 
     return NextResponse.json(
       { message: "Terjadi kesalahan saat memproses login." },
