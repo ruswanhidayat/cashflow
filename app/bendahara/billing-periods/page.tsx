@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { sql } from "@/lib/db";
-import { AppShell } from "@/app/components/app-shell";
+import AppShell from "@/app/components/app-shell";
 
 type Role = {
   id: number;
