@@ -58,6 +58,14 @@ export default async function BendaharaPage() {
     LIMIT 5
   `;
 
+  const bills = await sql`
+    SELECT
+      id,
+      amount
+    FROM bills
+    WHERE period_id = ${activePeriod.id}
+  `;
+
   const activePeriod = periods.find(
     (period) => period.status === "OPEN"
   );
@@ -95,6 +103,18 @@ export default async function BendaharaPage() {
         {periods.map((period) => (
           <p key={period.id}>
             {period.id} - {period.year} - {period.month} - {period.status}
+          </p>
+        ))}
+      </section>
+
+      <section>
+        <h2>Bill Test</h2>
+
+        <p>Jumlah bill: {bills.length}</p>
+
+        {bills.map((bill) => (
+          <p key={bill.id}>
+            {bill.id} - Rp {Number(bill.amount).toLocaleString("id-ID")}
           </p>
         ))}
       </section>
