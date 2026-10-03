@@ -88,7 +88,7 @@ export default function LoginPage() {
           <h1>Cashflow</h1>
 
           <p>
-            Kelola pencatatan kas dengan lebih sederhana.
+            Pencatatan Kas Seksi PSPP II.
           </p>
         </div>
 
@@ -107,6 +107,7 @@ export default function LoginPage() {
                 setEmployeeId(event.target.value)
               }
               placeholder="Masukkan ID Pegawai"
+              autoComplete="new-password"
               required
             />
           </div>
