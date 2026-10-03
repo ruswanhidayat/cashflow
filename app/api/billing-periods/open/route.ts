@@ -9,7 +9,7 @@ export async function POST() {
         status = 'OPEN',
         updated_at = NOW()
       WHERE status = 'DRAFT'
-        AND start_date <= CURRENT_DATE
+        AND start_date <= (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')::date
       RETURNING
         id,
         year,
