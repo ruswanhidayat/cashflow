@@ -1,8 +1,20 @@
 import "./globals.css";
+import { Open_Sans, Pacifico } from "next/font/google";
+
+const openSans = Open_Sans({
+  subsets: ["latin"],
+  variable: "--font-open-sans",
+});
+
+const pacifico = Pacifico({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-pacifico",
+});
 
 export const metadata = {
   title: "Cashflow",
-  description: "Aplikasi pencatatan pembayaran kas",
+  description: "Aplikasi Pencatatan Pembayaran Kas - PSPP II",
 };
 
 export default function RootLayout({
@@ -12,7 +24,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id">
-      <body>{children}</body>
+      <body
+        className={`${openSans.variable} ${pacifico.variable}`}
+      >
+        {children}
+      </body>
     </html>
   );
 }
