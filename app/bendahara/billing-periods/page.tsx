@@ -121,8 +121,20 @@ export default async function BillingPeriodsPage() {
                     <tr key={period.id}>
                     <td>{period.year}</td>
                     <td>{period.month}</td>
-                    <td>{period.start_date}</td>
-                    <td>{period.end_date}</td>
+                    <td>
+                      {period.start_date.toLocaleDateString("id-ID", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </td>
+                    <td>
+                      {period.end_date.toLocaleDateString("id-ID", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </td>
                     <td>{period.status}</td>
                     </tr>
                 ))}
