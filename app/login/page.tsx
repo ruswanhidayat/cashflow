@@ -85,7 +85,7 @@ export default function LoginPage() {
     <main className="login-page">
       <section className="login-card">
         <div className="login-brand">
-          <h1>CASHFLOW</h1>
+          <h1>Cashflow</h1>
 
           <p>
             Kelola pencatatan kas dengan lebih sederhana.
