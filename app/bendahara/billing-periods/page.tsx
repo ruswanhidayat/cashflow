@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { sql } from "@/lib/db";
 import AppShell from "@/app/components/app-shell";
+import GeneratePeriodButton from "./generate-period-button";
 
 type Role = {
   id: number;
@@ -90,9 +91,7 @@ export default async function BillingPeriodsPage() {
             <p>Kelola periode tagihan.</p>
         </div>
 
-        <button className="primary-button">
-            Generate Period
-        </button>
+        <GeneratePeriodButton />
         </div>
 
         <div className="card">
