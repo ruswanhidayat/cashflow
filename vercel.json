@@ -1,0 +1,20 @@
+{
+  "crons": [
+    {
+      "path": "/api/billing-periods/open",
+      "schedule": "0 18 0 * *"
+    },
+    {
+      "path": "/api/billing-periods/open",
+      "schedule": "0 0 1 * *"
+    },
+    {
+      "path": "/api/billing-periods/open",
+      "schedule": "0 6 1 * *"
+    },
+    {
+      "path": "/api/billing-periods/open",
+      "schedule": "0 12 1 * *"
+    }
+  ]
+}
