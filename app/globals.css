@@ -177,7 +177,7 @@ a {
 
   margin-top: 8px;
 
-  border: 0;
+  border: 1px solid #7e49b3;
   border-radius: 10px;
 
   color: #ffffff;
@@ -191,17 +191,26 @@ a {
 
   transition:
     background 0.2s ease,
+    border-color 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.2s ease;
 }
 
 .primary-button:hover:not(:disabled) {
   background: #8c57c0;
+  border-color: #8c57c0;
 
   box-shadow:
     0 8px 24px rgba(126, 73, 179, 0.28);
 
   transform: translateY(-1px);
+}
+
+.primary-button:active:not(:disabled) {
+  background: #70409f;
+  border-color: #70409f;
+
+  transform: translateY(0);
 }
 
 .primary-button:disabled {
@@ -589,19 +598,4 @@ a {
 
 .app-nav a:hover {
   color: #2563eb;
-}
-
-.primary-button {
-  border: none;
-  border-radius: 10px;
-  padding: 10px 16px;
-  background: #2563eb;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.primary-button:hover {
-  background: #1d4ed8;
 }
