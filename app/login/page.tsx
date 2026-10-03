@@ -107,7 +107,7 @@ export default function LoginPage() {
                 setEmployeeId(event.target.value)
               }
               placeholder="Masukkan ID Pegawai"
-              autoComplete="new-password"
+              autoComplete="off"
               required
             />
           </div>
