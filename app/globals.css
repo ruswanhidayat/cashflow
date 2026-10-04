@@ -76,6 +76,8 @@ body {
 }
 
 body {
+  position: relative;
+
   font-family: var(--font-open-sans), sans-serif;
 
   color: var(--text);
@@ -115,47 +117,53 @@ body::before {
   content: "";
 
   position: fixed;
-  inset: -20%;
+  inset: -15%;
 
   pointer-events: none;
-  z-index: -1;
+  z-index: 0;
 
   background:
     radial-gradient(
-      circle at 18% 72%,
-      rgba(235, 49, 63, 0.13),
-      transparent 28%
+      circle at 12% 82%,
+      rgba(235, 49, 63, 0.22),
+      transparent 30%
     ),
     radial-gradient(
-      circle at 78% 18%,
-      rgba(13, 54, 81, 0.55),
-      transparent 32%
+      circle at 52% 95%,
+      rgba(255, 247, 174, 0.10),
+      transparent 25%
     ),
     radial-gradient(
-      circle at 55% 85%,
-      rgba(255, 247, 174, 0.045),
-      transparent 22%
+      circle at 82% 18%,
+      rgba(13, 54, 81, 0.85),
+      transparent 38%
     );
 
-  filter: blur(45px);
+  filter: blur(55px);
 
-  animation: ambient-glow 20s ease-in-out infinite alternate;
+  animation: ambient-glow 18s ease-in-out infinite alternate;
+}
+
+.app-page,
+.login-page {
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes ambient-glow {
   0% {
-    transform: translate3d(-2%, -1%, 0) scale(1);
-    opacity: 0.72;
+    transform: translate3d(-3%, -2%, 0) scale(1);
+    opacity: 0.75;
   }
 
   50% {
-    transform: translate3d(2%, 2%, 0) scale(1.05);
+    transform: translate3d(2%, 2%, 0) scale(1.06);
     opacity: 1;
   }
 
   100% {
-    transform: translate3d(-1%, 3%, 0) scale(1.02);
-    opacity: 0.78;
+    transform: translate3d(-1%, 4%, 0) scale(1.03);
+    opacity: 0.82;
   }
 }
 
