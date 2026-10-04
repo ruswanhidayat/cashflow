@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
+
 import { sql } from "@/lib/db";
 
-export async function POST() {
+export const dynamic = "force-dynamic";
+
+export async function GET() {
   try {
     const openedPeriods = await sql`
       UPDATE billing_periods
@@ -9,7 +12,9 @@ export async function POST() {
         status = 'OPEN',
         updated_at = NOW()
       WHERE status = 'DRAFT'
-        AND start_date <= (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta')::date
+        AND start_date <= (
+          CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Jakarta'
+        )::date
       RETURNING
         id,
         year,
@@ -31,7 +36,9 @@ export async function POST() {
       {
         message: "Gagal membuka billing period.",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }
