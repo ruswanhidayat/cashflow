@@ -1037,6 +1037,11 @@ body::before {
   background: rgba(235, 49, 63, 0.04);
 }
 
+.data-table th,
+.data-table td {
+  text-align: center;
+}
+
 /* =========================
    TABLE FILTER
 ========================= */
@@ -1214,6 +1219,12 @@ body::before {
   color: #fff7ae;
   background: rgba(255, 247, 174, 0.08);
   border: 1px solid rgba(255, 247, 174, 0.18);
+}
+
+.status-closed {
+  background: rgba(13, 54, 81, 0.85);
+  border: 1px solid rgba(255, 247, 174, 0.35);
+  color: #fff7ae;
 }
 
 /* =========================

@@ -161,7 +161,6 @@ export async function POST(
         FROM bill_references br
         WHERE br.position_id = u.position_id
           AND br.cash_type_id = ct.id
-          AND br.is_active = TRUE
           AND br.valid_from <= ${period.start_date}
           AND (
             br.valid_to IS NULL
@@ -200,7 +199,6 @@ export async function POST(
         FROM bill_references br
         WHERE br.position_id = u.position_id
           AND br.cash_type_id = ct.id
-          AND br.is_active = TRUE
           AND br.valid_from <= ${period.start_date}
           AND (
             br.valid_to IS NULL
