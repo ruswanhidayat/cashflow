@@ -1219,15 +1219,15 @@ body::before {
 }
 
 .status-open {
+  background: rgba(235, 49, 63, 0.15);
+  border: 1px solid rgba(235, 49, 63, 0.45);
   color: #fff7ae;
-  background: rgba(255, 247, 174, 0.08);
-  border: 1px solid rgba(255, 247, 174, 0.18);
 }
 
 .status-closed {
   background: rgba(13, 54, 81, 0.85);
-  border: 1px solid rgba(255, 247, 174, 0.35);
-  color: #fff7ae;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.65);
 }
 
 /* =========================
