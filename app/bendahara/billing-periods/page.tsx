@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { sql } from "@/lib/db";
+
 import AppShell from "@/app/components/app-shell";
 import GeneratePeriodButton from "./generate-period-button";
 import GenerateBillsButton from "./generate-bills-button";
@@ -10,6 +11,16 @@ type Role = {
   id: number;
   code: string;
   name: string;
+};
+
+type BillingPeriod = {
+  id: number;
+  year: number;
+  month: number;
+  start_date: Date;
+  end_date: Date;
+  status: string;
+  bill_generation_status: string;
 };
 
 type BillingPeriodsPageProps = {
@@ -97,7 +108,9 @@ export default async function BillingPeriodsPage({
       : null;
 
   const selectedStatus =
-    params.status === "DRAFT" || params.status === "OPEN"
+    params.status === "DRAFT" ||
+    params.status === "OPEN" ||
+    params.status === "CLOSED"
       ? params.status
       : null;
 
@@ -135,7 +148,7 @@ export default async function BillingPeriodsPage({
 
   const offset = (currentPage - 1) * PAGE_SIZE;
 
-  const periods = await sql`
+  const periods = (await sql`
     SELECT
       id,
       year,
@@ -158,7 +171,7 @@ export default async function BillingPeriodsPage({
     ORDER BY year DESC, month ASC
     LIMIT ${PAGE_SIZE}
     OFFSET ${offset}
-  `;
+  `) as BillingPeriod[];
 
   const years = await sql`
     SELECT DISTINCT year
@@ -256,6 +269,7 @@ export default async function BillingPeriodsPage({
               <option value="">Semua status</option>
               <option value="DRAFT">Draft</option>
               <option value="OPEN">Open</option>
+              <option value="CLOSED">Closed</option>
             </select>
           </div>
 

@@ -19,16 +19,24 @@ export default function GenerateBillsButton({
   const [loading, setLoading] = useState(false);
 
   const canGenerate =
-    periodStatus === "DRAFT" &&
+    periodStatus === "OPEN" &&
     (
       billGenerationStatus === "NOT_GENERATED" ||
       billGenerationStatus === "PARTIAL"
     );
 
-  if (!canGenerate) {
+  if (periodStatus === "CLOSED") {
     return (
       <span className="generate-bills-completed">
         ✓
+      </span>
+    );
+  }
+
+  if (!canGenerate) {
+    return (
+      <span className="generate-bills-disabled">
+        —
       </span>
     );
   }
