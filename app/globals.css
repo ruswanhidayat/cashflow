@@ -3,24 +3,29 @@
      COLOR
   ========================= */
 
-  --background: #0a0a0a;
-  --surface: #141414;
-  --surface-soft: #1b1b1b;
-  --surface-hover: #202020;
+  --background: #061923;
 
-  --primary: #7e49b3;
-  --primary-light: #8c57c0;
-  --primary-dark: #70409f;
-  --primary-soft: rgba(126, 73, 179, 0.12);
+  --surface: #0d3651;
+  --surface-soft: #10415f;
+  --surface-hover: #14506f;
 
-  --text: #ffffff;
-  --text-secondary: #9f9f9f;
-  --text-muted: #666666;
+  --primary: #eb313f;
+  --primary-light: #f04451;
+  --primary-dark: #d92735;
+  --primary-soft: rgba(235, 49, 63, 0.12);
 
-  --border: #333333;
+  --secondary: #0d3651;
+
+  --accent: #fff7ae;
+
+  --text: #f5f7f8;
+  --text-secondary: #a9bac4;
+  --text-muted: #718895;
+
+  --border: rgba(255, 255, 255, 0.12);
   --border-soft: rgba(255, 255, 255, 0.08);
 
-  --danger: #ef7d7d;
+  --danger: #ff6672;
 
   /* =========================
      RADIUS
@@ -35,17 +40,23 @@
   ========================= */
 
   --shadow-sm:
-    0 8px 24px rgba(0, 0, 0, 0.24);
+    0 8px 24px rgba(0, 0, 0, 0.22);
 
   --shadow-md:
-    0 16px 40px rgba(0, 0, 0, 0.35);
+    0 16px 40px rgba(0, 0, 0, 0.32);
 
   /* =========================
      GLOW
   ========================= */
 
-  --purple-glow:
-    0 0 40px rgba(126, 73, 179, 0.08);
+  --red-glow:
+    0 0 40px rgba(235, 49, 63, 0.10);
+
+  --navy-glow:
+    0 0 60px rgba(13, 54, 81, 0.30);
+
+  --honey-glow:
+    0 0 35px rgba(255, 247, 174, 0.08);
 }
 
 
@@ -69,57 +80,9 @@ body {
 
   color: var(--text);
 
-  background: #080808;
+  background: var(--background);
 
   overflow-x: hidden;
-}
-
-
-/* =========================
-   AMBIENT BACKGROUND
-========================= */
-
-body::before {
-  content: "";
-
-  position: fixed;
-  inset: -20%;
-
-  pointer-events: none;
-  z-index: -1;
-
-  background:
-    radial-gradient(
-      circle at 20% 75%,
-      rgba(65, 150, 85, 0.16),
-      transparent 30%
-    ),
-    radial-gradient(
-      circle at 78% 15%,
-      rgba(45, 120, 65, 0.12),
-      transparent 28%
-    );
-
-  filter: blur(40px);
-
-  animation: ambient-glow 18s ease-in-out infinite alternate;
-}
-
-@keyframes ambient-glow {
-  0% {
-    transform: translate3d(-2%, -1%, 0) scale(1);
-    opacity: 0.75;
-  }
-
-  50% {
-    transform: translate3d(2%, 2%, 0) scale(1.04);
-    opacity: 1;
-  }
-
-  100% {
-    transform: translate3d(-1%, 3%, 0) scale(1.02);
-    opacity: 0.8;
-  }
 }
 
 button,
@@ -145,6 +108,59 @@ a {
 
 
 /* =========================
+   AMBIENT BACKGROUND
+========================= */
+
+body::before {
+  content: "";
+
+  position: fixed;
+  inset: -20%;
+
+  pointer-events: none;
+  z-index: -1;
+
+  background:
+    radial-gradient(
+      circle at 18% 72%,
+      rgba(235, 49, 63, 0.13),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 78% 18%,
+      rgba(13, 54, 81, 0.55),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 55% 85%,
+      rgba(255, 247, 174, 0.045),
+      transparent 22%
+    );
+
+  filter: blur(45px);
+
+  animation: ambient-glow 20s ease-in-out infinite alternate;
+}
+
+@keyframes ambient-glow {
+  0% {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+    opacity: 0.72;
+  }
+
+  50% {
+    transform: translate3d(2%, 2%, 0) scale(1.05);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate3d(-1%, 3%, 0) scale(1.02);
+    opacity: 0.78;
+  }
+}
+
+
+/* =========================
    LOGIN
 ========================= */
 
@@ -166,14 +182,14 @@ a {
 
   padding: 36px 40px;
 
-  background: rgba(20, 20, 20, 0.94);
+  background: rgba(13, 54, 81, 0.78);
 
-  border: 1px solid var(--border-soft);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: var(--radius-lg);
 
   box-shadow:
     0 24px 70px rgba(0, 0, 0, 0.45),
-    var(--purple-glow);
+    var(--navy-glow);
 }
 
 .login-brand {
@@ -183,7 +199,7 @@ a {
 .login-brand h1 {
   margin: 0 0 8px;
 
-  color: #ffffff;
+  color: var(--accent);
 
   font-family: var(--font-pacifico), cursive;
   font-size: 34px;
@@ -211,7 +227,7 @@ a {
 
   margin-bottom: 8px;
 
-  color: #d5d5d5;
+  color: var(--text);
 
   font-size: 14px;
   font-weight: 600;
@@ -224,9 +240,10 @@ a {
   padding: 0 14px;
 
   color: #ffffff;
-  background: #181818;
 
-  border: 1px solid var(--border);
+  background: rgba(6, 25, 35, 0.72);
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-sm);
 
   outline: none;
@@ -247,8 +264,13 @@ a {
   border-color: var(--primary);
 
   box-shadow:
-    0 0 0 3px rgba(126, 73, 179, 0.12);
+    0 0 0 3px rgba(235, 49, 63, 0.14);
 }
+
+
+/* =========================
+   BUTTON
+========================= */
 
 .primary-button {
   width: auto;
@@ -260,6 +282,7 @@ a {
   margin-top: 8px;
 
   color: #ffffff;
+
   background: var(--primary);
 
   border: 1px solid var(--primary);
@@ -281,7 +304,7 @@ a {
   border-color: var(--primary-light);
 
   box-shadow:
-    0 8px 24px rgba(126, 73, 179, 0.28);
+    0 8px 24px rgba(235, 49, 63, 0.28);
 
   transform: translateY(-1px);
 }
@@ -298,10 +321,18 @@ a {
   cursor: not-allowed;
 }
 
+
+/* Login button tetap full width */
+
 .login-card .primary-button {
   width: 100%;
   height: 48px;
 }
+
+
+/* =========================
+   ERROR
+========================= */
 
 .error-message {
   margin: 0 0 16px;
@@ -327,7 +358,7 @@ a {
 
   padding: 24px;
 
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(0, 0, 0, 0.76);
 
   backdrop-filter: blur(6px);
 
@@ -338,7 +369,7 @@ a {
   width: 100%;
   max-width: 400px;
 
-  padding: 32px;
+  padding: 30px;
 
   background: var(--surface);
 
@@ -347,13 +378,13 @@ a {
 
   box-shadow:
     0 24px 70px rgba(0, 0, 0, 0.55),
-    var(--purple-glow);
+    var(--navy-glow);
 }
 
 .modal-card h2 {
   margin: 0 0 8px;
 
-  color: #ffffff;
+  color: var(--text);
 
   font-size: 20px;
   font-weight: 700;
@@ -380,8 +411,9 @@ a {
 
   padding: 10px 14px;
 
-  color: #ffffff;
-  background: var(--surface-soft);
+  color: var(--text);
+
+  background: rgba(6, 25, 35, 0.45);
 
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -391,11 +423,15 @@ a {
 
   transition:
     background 0.2s ease,
-    border-color 0.2s ease;
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .role-button:hover:not(:disabled) {
-  background: var(--primary-soft);
+  color: var(--accent);
+
+  background: rgba(235, 49, 63, 0.10);
+
   border-color: var(--primary);
 }
 
@@ -411,6 +447,8 @@ a {
 
 .app-page {
   min-height: 100vh;
+
+  background: transparent;
 }
 
 .app-header {
@@ -425,7 +463,7 @@ a {
 
   padding: 0 32px;
 
-  background: rgba(10, 10, 10, 0.90);
+  background: rgba(6, 25, 35, 0.88);
 
   border-bottom: 1px solid var(--border-soft);
 
@@ -433,7 +471,7 @@ a {
 }
 
 .app-brand {
-  color: #ffffff;
+  color: var(--accent);
 
   font-family: var(--font-pacifico), cursive;
   font-size: 24px;
@@ -455,7 +493,8 @@ a {
   border-radius: 999px;
 
   background: var(--primary-soft);
-  color: #c9a9e2;
+
+  color: #ffadb5;
 
   font-size: 12px;
   font-weight: 600;
@@ -472,8 +511,9 @@ a {
 
   padding: 8px 12px;
 
-  color: #ffffff;
-  background: var(--surface-soft);
+  color: var(--text);
+
+  background: var(--surface);
 
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -488,7 +528,8 @@ a {
 
 .user-menu-trigger:hover {
   background: var(--surface-hover);
-  border-color: #444444;
+
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .user-menu {
@@ -520,7 +561,7 @@ a {
 .user-menu-name {
   margin: 0 0 4px;
 
-  color: #ffffff;
+  color: var(--text);
 
   font-size: 14px;
   font-weight: 600;
@@ -540,10 +581,11 @@ a {
   padding: 10px 12px;
 
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 
   background: transparent;
-  color: #d5d5d5;
+
+  color: var(--text-secondary);
 
   text-align: left;
 
@@ -554,6 +596,8 @@ a {
 
 .user-menu-button:hover {
   background: var(--surface-hover);
+
+  color: var(--text);
 }
 
 .user-menu-button.danger {
@@ -589,7 +633,7 @@ a {
 }
 
 .app-nav a:hover {
-  color: #ffffff;
+  color: var(--accent);
 }
 
 
@@ -603,17 +647,17 @@ a {
 
   margin: 0 auto;
 
-  padding: 40px 32px 60px;
+  padding: 36px 32px 60px;
 }
 
 .page-heading {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .page-heading h1 {
   margin: 0 0 8px;
 
-  color: #ffffff;
+  color: var(--text);
 
   font-size: 30px;
   line-height: 1.2;
@@ -641,17 +685,17 @@ a {
   grid-template-columns:
     repeat(2, minmax(0, 1fr));
 
-  gap: 16px;
+  gap: 14px;
 
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .stat-card {
   padding: 18px 20px;
 
-  background: #141414;
+  background: rgba(13, 54, 81, 0.62);
 
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--border-soft);
   border-radius: var(--radius-md);
 
   box-shadow: none;
@@ -667,7 +711,7 @@ a {
 }
 
 .stat-value {
-  color: #ffffff;
+  color: var(--text);
 
   font-size: 22px;
   font-weight: 700;
@@ -681,29 +725,29 @@ a {
 .content-card {
   padding: 20px;
 
-  background: #141414;
+  background: rgba(13, 54, 81, 0.62);
 
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--border-soft);
   border-radius: var(--radius-md);
 
   box-shadow: none;
 }
 
 .content-card-header {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .content-card-header h2 {
   margin: 0;
 
-  color: #ffffff;
+  color: var(--text);
 
   font-size: 18px;
   font-weight: 700;
 }
 
 .empty-state {
-  padding: 30px 20px;
+  padding: 28px 20px;
 
   color: var(--text-secondary);
 
@@ -719,7 +763,7 @@ a {
 
 .bill-list {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .bill-item {
@@ -729,21 +773,21 @@ a {
 
   padding: 14px 16px;
 
-  background: #181818;
+  background: rgba(6, 25, 35, 0.40);
 
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--border-soft);
   border-radius: var(--radius-sm);
 }
 
 .bill-name {
-  color: #ffffff;
+  color: var(--text);
 
   font-size: 14px;
   font-weight: 600;
 }
 
 .bill-amount {
-  color: #ffffff;
+  color: var(--accent);
 
   font-size: 14px;
   font-weight: 600;
@@ -759,10 +803,11 @@ a {
 
   border-top: 1px solid var(--border);
 
-  color: #ffffff;
+  color: var(--text);
 
   font-weight: 700;
 }
+
 
 /* =========================
    DATA TABLE
@@ -770,16 +815,18 @@ a {
 
 .table-wrapper {
   width: 100%;
+
   overflow-x: auto;
 
-  background: #141414;
+  background: rgba(13, 54, 81, 0.62);
 
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--border-soft);
   border-radius: var(--radius-md);
 }
 
 .data-table {
   width: 100%;
+
   border-collapse: collapse;
 
   font-size: 14px;
@@ -788,16 +835,17 @@ a {
 .data-table th {
   padding: 13px 16px;
 
-  color: #b8b8b8;
+  color: var(--accent);
 
-  background: #181818;
+  background: rgba(6, 25, 35, 0.35);
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid var(--border);
 
   text-align: left;
 
   font-size: 12px;
   font-weight: 600;
+
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -805,7 +853,7 @@ a {
 .data-table td {
   padding: 14px 16px;
 
-  color: #d5d5d5;
+  color: var(--text-secondary);
 
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -815,7 +863,7 @@ a {
 }
 
 .data-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.025);
+  background: rgba(235, 49, 63, 0.04);
 }
 
 

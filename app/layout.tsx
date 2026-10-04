@@ -13,7 +13,7 @@ const pacifico = Pacifico({
 });
 
 export const metadata = {
-  title: "Cashflow",
+  title: "Buku Kas",
   description: "Aplikasi Pencatatan Pembayaran Kas - PSPP II",
 };
 

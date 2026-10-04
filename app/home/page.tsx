@@ -93,7 +93,7 @@ export default async function HomePage() {
 
         <p>
           {user.position_name ||
-            "Selamat datang di Cashflow."}
+            "Selamat datang di Buku Kas."}
         </p>
       </div>
 

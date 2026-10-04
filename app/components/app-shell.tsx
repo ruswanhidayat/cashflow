@@ -23,7 +23,7 @@ export default function AppShell({
     <div className="app-page">
       <header className="app-header">
         <div className="app-brand">
-          Cashflow
+          Buku Kas
         </div>
 
         <nav className="app-nav">
