@@ -96,11 +96,14 @@ export async function POST(
 
     const period = periods[0];
 
-    if (period.status !== "DRAFT") {
+    /*
+     * Bills hanya dapat di-generate untuk billing period OPEN.
+     */
+    if (period.status !== "OPEN") {
       return NextResponse.json(
         {
           message:
-            "Bills hanya dapat di-generate untuk billing period dengan status DRAFT.",
+            "Bills hanya dapat di-generate untuk billing period dengan status OPEN.",
         },
         {
           status: 400,
@@ -108,6 +111,32 @@ export async function POST(
       );
     }
 
+    /*
+     * Billing period OPEN hanya boleh berada pada
+     * status NOT_GENERATED atau PARTIAL.
+     */
+    if (
+      period.bill_generation_status !== "NOT_GENERATED" &&
+      period.bill_generation_status !== "PARTIAL"
+    ) {
+      return NextResponse.json(
+        {
+          message:
+            "Billing period ini tidak dapat melakukan generate bills lagi.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    /*
+     * Generate bills untuk:
+     * - user aktif
+     * - memiliki position
+     * - cash type aktif
+     * - memiliki bill reference yang berlaku
+     */
     const insertedBills = await sql`
       INSERT INTO bills (
         user_id,
@@ -138,7 +167,9 @@ export async function POST(
             br.valid_to IS NULL
             OR br.valid_to >= ${period.start_date}
           )
-        ORDER BY br.valid_from DESC, br.id DESC
+        ORDER BY
+          br.valid_from DESC,
+          br.id DESC
         LIMIT 1
       ) br ON TRUE
       WHERE u.is_active = TRUE
@@ -152,6 +183,10 @@ export async function POST(
       RETURNING id
     `;
 
+    /*
+     * Hitung total bill yang seharusnya ada
+     * dan total bill yang sudah tersedia.
+     */
     const expectedResult = await sql`
       SELECT
         COUNT(*)::int AS expected_count,
@@ -171,7 +206,9 @@ export async function POST(
             br.valid_to IS NULL
             OR br.valid_to >= ${period.start_date}
           )
-        ORDER BY br.valid_from DESC, br.id DESC
+        ORDER BY
+          br.valid_from DESC,
+          br.id DESC
         LIMIT 1
       ) br ON TRUE
       LEFT JOIN bills b
@@ -182,30 +219,57 @@ export async function POST(
         AND u.position_id IS NOT NULL
     `;
 
-    const expectedCount = expectedResult[0].expected_count;
-    const generatedCount = expectedResult[0].generated_count;
+    const expectedCount = Number(
+      expectedResult[0].expected_count
+    );
 
-    const generationStatus =
-      expectedCount === generatedCount
-        ? "COMPLETED"
-        : "PARTIAL";
+    const generatedCount = Number(
+      expectedResult[0].generated_count
+    );
 
-    await sql`
-      UPDATE billing_periods
-      SET
-        bill_generation_status = ${generationStatus},
-        updated_at = NOW()
-      WHERE id = ${periodId}
-    `;
+    const isComplete =
+      expectedCount === generatedCount;
+
+    if (isComplete) {
+      /*
+       * Semua bill sudah tersedia.
+       * Billing period selesai dan ditutup.
+       */
+      await sql`
+        UPDATE billing_periods
+        SET
+          status = 'CLOSED',
+          bill_generation_status = 'GENERATED',
+          updated_at = NOW()
+        WHERE id = ${periodId}
+      `;
+    } else {
+      /*
+       * Masih ada bill yang belum tersedia.
+       * Period tetap OPEN agar dapat di-generate lagi.
+       */
+      await sql`
+        UPDATE billing_periods
+        SET
+          status = 'OPEN',
+          bill_generation_status = 'PARTIAL',
+          updated_at = NOW()
+        WHERE id = ${periodId}
+      `;
+    }
 
     return NextResponse.json({
       success: true,
-      message:
-        generationStatus === "COMPLETED"
-          ? "Bills berhasil di-generate."
-          : "Bills berhasil di-generate sebagian.",
+      message: isComplete
+        ? "Bills berhasil di-generate. Billing period ditutup."
+        : "Bills berhasil di-generate sebagian.",
       periodId,
-      billGenerationStatus: generationStatus,
+      billGenerationStatus: isComplete
+        ? "GENERATED"
+        : "PARTIAL",
+      periodStatus: isComplete
+        ? "CLOSED"
+        : "OPEN",
       generatedCount: insertedBills.length,
       totalBillCount: generatedCount,
       expectedBillCount: expectedCount,
