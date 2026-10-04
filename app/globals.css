@@ -1037,9 +1037,12 @@ body::before {
   background: rgba(235, 49, 63, 0.04);
 }
 
-.data-table th,
-.data-table td {
-  text-align: center;
+.data-table thead th {
+  text-align: center !important;
+}
+
+.data-table tbody td {
+  text-align: center !important;
 }
 
 /* =========================
