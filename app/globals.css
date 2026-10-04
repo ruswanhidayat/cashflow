@@ -147,6 +147,32 @@ select:disabled {
   cursor: not-allowed;
 }
 
+.user-menu-trigger::after {
+  content: "";
+
+  width: 6px;
+  height: 6px;
+
+  border-right: 1.5px solid #a9bac4;
+  border-bottom: 1.5px solid #a9bac4;
+
+  transform: rotate(45deg);
+
+  margin-left: 4px;
+  margin-top: -3px;
+
+  transition: transform 0.2s ease;
+}
+
+.user-menu-trigger:hover:not(:disabled)::after {
+  border-color: #fff;
+}
+
+.user-menu-trigger.open::after {
+  transform: rotate(225deg);
+  margin-top: 3px;
+}
+
 /* =========================
    AMBIENT BACKGROUND
 ========================= */

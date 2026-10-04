@@ -87,12 +87,13 @@ export default function UserMenu({
     <div className="user-menu-wrapper">
       <button
         type="button"
-        className="user-menu-trigger"
+        className={`user-menu-trigger ${
+          open ? "open" : ""
+        }`}
         onClick={() => setOpen((value) => !value)}
         disabled={loading}
       >
         {userName}
-        <span>⌄</span>
       </button>
 
       {open && (
