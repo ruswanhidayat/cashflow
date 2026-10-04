@@ -1004,7 +1004,7 @@ body::before {
 }
 
 .data-table th {
-  padding: 13px 16px;
+  padding: 8px 10px;
 
   color: var(--accent);
 
@@ -1022,7 +1022,7 @@ body::before {
 }
 
 .data-table td {
-  padding: 14px 16px;
+  padding: 7px 10px;
 
   color: var(--text-secondary);
 
