@@ -173,6 +173,47 @@ select:disabled {
   margin-top: 3px;
 }
 
+.generate-bills-button {
+  border: 1px solid #eb313f;
+  background: #eb313f;
+  color: #fff7ae;
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.generate-bills-button:hover:not(:disabled) {
+  background: #c92532;
+  border-color: #c92532;
+}
+
+.generate-bills-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.generate-bills-completed {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #0d3651;
+  border-radius: 6px;
+  background: #0d3651;
+  color: #fff7ae;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 /* =========================
    AMBIENT BACKGROUND
 ========================= */

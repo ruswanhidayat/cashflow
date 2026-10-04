@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
 import AppShell from "@/app/components/app-shell";
 import GeneratePeriodButton from "./generate-period-button";
+import GenerateBillsButton from "./generate-bills-button";
 
 type Role = {
   id: number;
@@ -121,6 +122,7 @@ export default async function BillingPeriodsPage({
   `;
 
   const totalItems = Number(countResult[0].total);
+
   const totalPages = Math.max(
     1,
     Math.ceil(totalItems / PAGE_SIZE)
@@ -140,7 +142,8 @@ export default async function BillingPeriodsPage({
       month,
       start_date,
       end_date,
-      status
+      status,
+      bill_generation_status
     FROM billing_periods
     WHERE
       (${selectedYear}::integer IS NULL OR year = ${selectedYear})
@@ -293,17 +296,29 @@ export default async function BillingPeriodsPage({
               <table className="data-table">
                 <thead>
                   <tr>
+                    <th>Aksi</th>
                     <th>Tahun</th>
                     <th>Bulan</th>
                     <th>Mulai</th>
                     <th>Selesai</th>
                     <th>Status</th>
+                    <th>Bills</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {periods.map((period) => (
                     <tr key={period.id}>
+                      <td>
+                        <GenerateBillsButton
+                          periodId={period.id}
+                          periodStatus={period.status}
+                          billGenerationStatus={
+                            period.bill_generation_status
+                          }
+                        />
+                      </td>
+
                       <td>{period.year}</td>
                       <td>{period.month}</td>
 
@@ -334,6 +349,14 @@ export default async function BillingPeriodsPage({
                           className={`status-badge status-${period.status.toLowerCase()}`}
                         >
                           {period.status}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span
+                          className={`status-badge status-${period.bill_generation_status.toLowerCase()}`}
+                        >
+                          {period.bill_generation_status}
                         </span>
                       </td>
                     </tr>
