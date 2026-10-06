@@ -135,7 +135,11 @@ export default function UserMenu({
     >
       <button
         type="button"
-        className="user-menu-trigger"
+        className={`user-menu-trigger ${
+          currentRole === "BEND"
+            ? "role-bend"
+            : "role-user"
+        }`}
         onClick={() => setOpen((value) => !value)}
         disabled={loading}
       >

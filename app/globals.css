@@ -1628,6 +1628,10 @@ body::before {
     gap: 0;
   }
 
+  .user-menu-trigger::after {
+    display: none;
+  }
+
   .user-menu-trigger.role-bend {
     background: rgba(235, 49, 63, 0.18);
     border-color: rgba(235, 49, 63, 0.4);
