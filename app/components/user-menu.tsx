@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Role = {
@@ -24,6 +24,51 @@ export default function UserMenu({
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function handleOutsideClick(event: MouseEvent) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(
+          event.target as Node
+        )
+      ) {
+        setOpen(false);
+      }
+    }
+
+    function handleScroll() {
+      setOpen(false);
+    }
+
+    document.addEventListener(
+      "mousedown",
+      handleOutsideClick
+    );
+
+    window.addEventListener(
+      "scroll",
+      handleScroll,
+      true
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleOutsideClick
+      );
+
+      window.removeEventListener(
+        "scroll",
+        handleScroll,
+        true
+      );
+    };
+  }, [open]);
 
   async function handleLogout() {
     setLoading(true);
@@ -84,16 +129,34 @@ export default function UserMenu({
   );
 
   return (
-    <div className="user-menu-wrapper">
+    <div
+      className="user-menu-wrapper"
+      ref={menuRef}
+    >
       <button
         type="button"
         className={`user-menu-trigger ${
-          open ? "open" : ""
+          currentRole === "BEND"
+            ? "role-bend"
+            : "role-user"
         }`}
         onClick={() => setOpen((value) => !value)}
         disabled={loading}
       >
-        {userName}
+        <span className="user-menu-desktop-name">
+          {userName}
+        </span>
+
+        <span className="user-menu-mobile-avatar">
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z" />
+          </svg>
+        </span>
+
+        <span className="user-menu-arrow">⌄</span>
       </button>
 
       {open && (
@@ -109,7 +172,9 @@ export default function UserMenu({
           {roles.length > 1 && (
             <>
               {roles
-                .filter((role) => role.code !== currentRole)
+                .filter(
+                  (role) => role.code !== currentRole
+                )
                 .map((role) => (
                   <button
                     key={role.id}

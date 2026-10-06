@@ -172,6 +172,14 @@ select:disabled {
   margin-top: 3px;
 }
 
+.user-menu-desktop-name {
+  display: none;
+}
+
+.user-menu-mobile-avatar {
+  display: none;
+}
+
 
 /* =========================
    GENERATE BILLS
@@ -1579,6 +1587,51 @@ body::before {
     gap: 6px;
   }
 
+  .user-menu-desktop-name {
+    display: none;
+  }
+
+  .user-menu-mobile-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .user-menu-mobile-avatar svg {
+    width: 19px;
+    height: 19px;
+    fill: currentColor;
+  }
+
+  .user-menu-trigger {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .user-menu-desktop-name {
+    display: none;
+  }
+
+  .user-menu-arrow {
+    display: none;
+  }
+
+  .user-menu-trigger.role-bend {
+    background: rgba(235, 49, 63, 0.18);
+    border-color: rgba(235, 49, 63, 0.4);
+    color: #ffadb5;
+  }
+
+  .user-menu-trigger.role-user {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text);
+  }
+
   /* -------------------------
      FLOATING MENU BUTTON
   ------------------------- */
@@ -1660,8 +1713,8 @@ body::before {
   .app-sidebar {
     top: 0;
     bottom: 0;
-
     width: 220px;
+    z-index: 120;
 
     padding: 18px 10px;
 
