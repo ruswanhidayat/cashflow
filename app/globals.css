@@ -1242,17 +1242,34 @@ body::before {
   border-color: rgba(255, 255, 255, 0.25);
 }
 .responsive-select-chevron {
-  width: 7px;
-  height: 7px;
-  margin-right: 3px;
-  border-right: 2px solid var(--text-secondary);
-  border-bottom: 2px solid var(--text-secondary);
-  transform: rotate(45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 16px;
+
+  width: 16px;
+  height: 16px;
+
+  margin-left: 8px;
+
+  color: var(--text-secondary);
+
   transition: transform 0.2s ease;
 }
-.responsive-select.open .responsive-select-chevron {
-  transform: rotate(225deg);
+
+.responsive-select-chevron svg {
+  display: block;
+
+  width: 16px;
+  height: 16px;
 }
+
+.responsive-select.open
+.responsive-select-chevron {
+  transform: rotate(180deg);
+}
+
 /* =========================================================
  DESKTOP DROPDOWN
  ========================================================= */
