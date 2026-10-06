@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import ConfirmDialog from "@/app/components/confirm-dialog";
+import Notification from "@/app/components/notification";
+
 export default function GeneratePeriodButton() {
   const currentYear = new Date().getFullYear();
 
@@ -13,12 +16,28 @@ export default function GeneratePeriodButton() {
   ];
 
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [selectedYear, setSelectedYear] =
+    useState(currentYear);
+
   const [isLoading, setIsLoading] = useState(false);
+
+  const [confirmOpen, setConfirmOpen] =
+    useState(false);
+
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
+  const [existingCount, setExistingCount] =
+    useState(0);
+
+  const [missingCount, setMissingCount] =
+    useState(0);
 
   const router = useRouter();
 
-  const handleGenerate = async () => {
+  async function handleGenerate() {
     setIsLoading(true);
 
     try {
@@ -35,20 +54,26 @@ export default function GeneratePeriodButton() {
         }
       );
 
-      const checkResult = await checkResponse.json();
+      const checkResult =
+        await checkResponse.json();
 
       if (!checkResponse.ok) {
-        alert(
-          checkResult.message ??
-            "Gagal mengecek billing period."
-        );
+        setNotification({
+          type: "error",
+          message:
+            checkResult.message ??
+            "Gagal mengecek billing period.",
+        });
+
         return;
       }
 
       if (checkResult.existingCount === 12) {
-        alert(
-          `Billing period tahun ${selectedYear} sudah lengkap.`
-        );
+        setNotification({
+          type: "error",
+          message: `Billing period tahun ${selectedYear} sudah lengkap.`,
+        });
+
         setIsOpen(false);
         return;
       }
@@ -57,18 +82,37 @@ export default function GeneratePeriodButton() {
         checkResult.existingCount > 0 &&
         checkResult.existingCount < 12
       ) {
-        const confirmed = window.confirm(
-          `Sebagian billing period tahun ${selectedYear} sudah ada.\n\n` +
-            `${checkResult.existingCount} bulan sudah ada dan ` +
-            `${checkResult.missingCount} bulan belum ada.\n\n` +
-            `Apakah tetap generate bulan yang belum ada?`
+        setExistingCount(
+          checkResult.existingCount
         );
 
-        if (!confirmed) {
-          return;
-        }
+        setMissingCount(
+          checkResult.missingCount
+        );
+
+        setConfirmOpen(true);
+
+        return;
       }
 
+      await generatePeriods();
+    } catch (error) {
+      console.error(error);
+
+      setNotification({
+        type: "error",
+        message:
+          "Terjadi kesalahan saat membuat billing period.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function generatePeriods() {
+    setIsLoading(true);
+
+    try {
       const generateResponse = await fetch(
         "/api/billing-periods/generate",
         {
@@ -82,30 +126,51 @@ export default function GeneratePeriodButton() {
         }
       );
 
-      const generateResult = await generateResponse.json();
+      const generateResult =
+        await generateResponse.json();
 
       if (!generateResponse.ok) {
-        alert(
-          generateResult.message ??
-            "Gagal membuat billing period."
-        );
+        setNotification({
+          type: "error",
+          message:
+            generateResult.message ??
+            "Gagal membuat billing period.",
+        });
+
         return;
       }
 
-      alert(generateResult.message);
+      setNotification({
+        type: "success",
+        message:
+          generateResult.message ||
+          "Billing period berhasil dibuat.",
+      });
 
       setIsOpen(false);
+      setConfirmOpen(false);
+
       router.refresh();
     } catch (error) {
       console.error(error);
 
-      alert(
-        "Terjadi kesalahan saat membuat billing period."
-      );
+      setNotification({
+        type: "error",
+        message:
+          "Terjadi kesalahan saat membuat billing period.",
+      });
     } finally {
       setIsLoading(false);
     }
-  };
+  }
+
+  function handleConfirmGenerate() {
+    generatePeriods();
+  }
+
+  function handleCancelConfirm() {
+    setConfirmOpen(false);
+  }
 
   return (
     <>
@@ -118,33 +183,56 @@ export default function GeneratePeriodButton() {
       </button>
 
       {isOpen && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h2>Generate Billing Period</h2>
+        <div
+          className="confirm-dialog-overlay"
+          onMouseDown={(event) => {
+            if (
+              event.target === event.currentTarget &&
+              !isLoading
+            ) {
+              setIsOpen(false);
+            }
+          }}
+        >
+          <div
+            className="confirm-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="generate-period-title"
+          >
+            <div className="confirm-dialog-content">
+              <h2 id="generate-period-title">
+                Generate Billing Period
+              </h2>
 
-            <p>
-              Pilih tahun yang ingin dibuat.
-            </p>
+              <p>
+                Pilih tahun yang ingin dibuat.
+              </p>
 
-            <select
-              value={selectedYear}
-              onChange={(event) =>
-                setSelectedYear(
-                  Number(event.target.value)
-                )
-              }
-              disabled={isLoading}
-            >
-              {years.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
+              <select
+                value={selectedYear}
+                onChange={(event) =>
+                  setSelectedYear(
+                    Number(event.target.value)
+                  )
+                }
+                disabled={isLoading}
+              >
+                {years.map((year) => (
+                  <option
+                    key={year}
+                    value={year}
+                  >
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <div className="modal-actions">
+            <div className="confirm-dialog-actions">
               <button
                 type="button"
+                className="secondary-button"
                 onClick={() => setIsOpen(false)}
                 disabled={isLoading}
               >
@@ -165,6 +253,28 @@ export default function GeneratePeriodButton() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Generate Billing Period"
+        message={
+          `Sebagian billing period tahun ${selectedYear} sudah ada.\n\n` +
+          `${existingCount} bulan sudah ada dan ` +
+          `${missingCount} bulan belum ada.\n\n` +
+          `Apakah tetap generate bulan yang belum ada?`
+        }
+        confirmText="Generate"
+        loading={isLoading}
+        onConfirm={handleConfirmGenerate}
+        onCancel={handleCancelConfirm}
+      />
+
+      <Notification
+        open={notification !== null}
+        type={notification?.type}
+        message={notification?.message || ""}
+        onClose={() => setNotification(null)}
+      />
     </>
   );
 }

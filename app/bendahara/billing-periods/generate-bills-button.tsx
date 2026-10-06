@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import ConfirmDialog from "@/app/components/confirm-dialog";
+import Notification from "@/app/components/notification";
+
 type GenerateBillsButtonProps = {
   periodId: number;
   periodStatus: string;
@@ -17,6 +20,12 @@ export default function GenerateBillsButton({
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   const canGenerate =
     periodStatus === "OPEN" &&
@@ -41,17 +50,12 @@ export default function GenerateBillsButton({
     );
   }
 
+  function handleGenerateClick() {
+    setConfirmOpen(true);
+  }
+
   async function handleGenerate() {
-    const confirmed = window.confirm(
-      billGenerationStatus === "PARTIAL"
-        ? "Generate ulang bills untuk billing period ini?"
-        : "Generate bills untuk billing period ini?"
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
+    setConfirmOpen(false);
     setLoading(true);
 
     try {
@@ -65,17 +69,22 @@ export default function GenerateBillsButton({
       const data = await response.json();
 
       if (!response.ok) {
-        alert(
-          data.message ||
-            "Gagal melakukan generate bills."
-        );
+        setNotification({
+          type: "error",
+          message:
+            data.message ||
+            "Gagal melakukan generate bills.",
+        });
+
         return;
       }
 
-      alert(
-        data.message ||
-          "Bills berhasil di-generate."
-      );
+      setNotification({
+        type: "success",
+        message:
+          data.message ||
+          "Bills berhasil di-generate.",
+      });
 
       router.refresh();
     } catch (error) {
@@ -84,26 +93,55 @@ export default function GenerateBillsButton({
         error
       );
 
-      alert(
-        "Terjadi kesalahan saat melakukan generate bills."
-      );
+      setNotification({
+        type: "error",
+        message:
+          "Terjadi kesalahan saat melakukan generate bills.",
+      });
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <button
-      type="button"
-      className="generate-bills-button"
-      onClick={handleGenerate}
-      disabled={loading}
-    >
-      {loading
-        ? "Generating..."
-        : billGenerationStatus === "PARTIAL"
-          ? "Generate Lagi"
-          : "Generate Bills"}
-    </button>
+    <>
+      <button
+        type="button"
+        className="generate-bills-button"
+        onClick={handleGenerateClick}
+        disabled={loading}
+      >
+        {loading
+          ? "Generating..."
+          : billGenerationStatus === "PARTIAL"
+            ? "Generate Lagi"
+            : "Generate Bills"}
+      </button>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title={
+          billGenerationStatus === "PARTIAL"
+            ? "Generate Ulang Bills"
+            : "Generate Bills"
+        }
+        message={
+          billGenerationStatus === "PARTIAL"
+            ? "Generate ulang bills untuk billing period ini?"
+            : "Generate bills untuk billing period ini?"
+        }
+        confirmText="Generate"
+        loading={loading}
+        onConfirm={handleGenerate}
+        onCancel={() => setConfirmOpen(false)}
+      />
+
+      <Notification
+        open={notification !== null}
+        type={notification?.type}
+        message={notification?.message || ""}
+        onClose={() => setNotification(null)}
+      />
+    </>
   );
 }

@@ -168,7 +168,7 @@ export default async function BillingPeriodsPage({
         ${selectedStatus}::varchar IS NULL
         OR status = ${selectedStatus}
       )
-    ORDER BY year DESC, month ASC
+    ORDER BY status DESC, year ASC, month ASC
     LIMIT ${PAGE_SIZE}
     OFFSET ${offset}
   `) as BillingPeriod[];
