@@ -1,3 +1,4 @@
+import Sidebar from "./sidebar";
 import UserMenu from "./user-menu";
 
 type Role = {
@@ -26,20 +27,6 @@ export default function AppShell({
           Buku Kas
         </div>
 
-        <nav className="app-nav">
-          {currentRole === "BEND" && (
-            <>
-              <a href="/bendahara">
-                Dashboard
-              </a>
-
-              <a href="/bendahara/billing-periods">
-                Billing Period
-              </a>
-            </>
-          )}
-        </nav>
-
         <div className="app-header-right">
           <span className="app-role">
             {currentRole === "BEND"
@@ -54,6 +41,8 @@ export default function AppShell({
           />
         </div>
       </header>
+
+      <Sidebar currentRole={currentRole} />
 
       <main className="app-content">
         {children}
