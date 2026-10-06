@@ -12,6 +12,7 @@ type ResponsiveSelectProps = {
   name: string;
   value: string;
   options: SelectOption[];
+  disabled?: boolean;
 };
 
 export default function ResponsiveSelect({
@@ -19,30 +20,46 @@ export default function ResponsiveSelect({
   name,
   value,
   options,
+  disabled = false,
 }: ResponsiveSelectProps) {
-  const [selectedValue, setSelectedValue] = useState(value);
+  const [selectedValue, setSelectedValue] =
+    useState(value);
+
   const [isOpen, setIsOpen] = useState(false);
 
   const selectedOption =
-    options.find((option) => option.value === selectedValue) ??
-    options[0];
+    options.find(
+      (option) =>
+        option.value === selectedValue
+    ) ?? options[0];
 
   useEffect(() => {
     setSelectedValue(value);
   }, [value]);
 
   useEffect(() => {
+    if (disabled) {
+      setIsOpen(false);
+    }
+  }, [disabled]);
+
+  useEffect(() => {
     if (!isOpen) {
       return;
     }
 
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (
+      event: KeyboardEvent
+    ) => {
       if (event.key === "Escape") {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener(
+      "keydown",
+      handleKeyDown
+    );
 
     return () => {
       document.removeEventListener(
@@ -57,15 +74,20 @@ export default function ResponsiveSelect({
       return;
     }
 
-    const originalOverflow = document.body.style.overflow;
+    const originalOverflow =
+      document.body.style.overflow;
+
     document.body.style.overflow = "hidden";
 
     return () => {
-      document.body.style.overflow = originalOverflow;
+      document.body.style.overflow =
+        originalOverflow;
     };
   }, [isOpen]);
 
-  function handleSelect(nextValue: string) {
+  function handleSelect(
+    nextValue: string
+  ) {
     setSelectedValue(nextValue);
     setIsOpen(false);
   }
@@ -84,8 +106,11 @@ export default function ResponsiveSelect({
         className="responsive-select-native"
         value={selectedValue}
         onChange={(event) =>
-          setSelectedValue(event.target.value)
+          setSelectedValue(
+            event.target.value
+          )
         }
+        disabled={disabled}
       >
         {options.map((option) => (
           <option
@@ -102,10 +127,13 @@ export default function ResponsiveSelect({
         type="button"
         className="responsive-select-trigger"
         onClick={() => setIsOpen(true)}
+        disabled={disabled}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
       >
-        <span>{selectedOption.label}</span>
+        <span>
+          {selectedOption.label}
+        </span>
 
         <span
           className="responsive-select-chevron"
@@ -120,7 +148,8 @@ export default function ResponsiveSelect({
           className="responsive-select-overlay"
           onMouseDown={(event) => {
             if (
-              event.target === event.currentTarget
+              event.target ===
+              event.currentTarget
             ) {
               setIsOpen(false);
             }
@@ -138,7 +167,8 @@ export default function ResponsiveSelect({
               id={`${id}-sheet-title`}
               className="responsive-select-sheet-title"
             >
-              Pilih {id === "month"
+              Pilih{" "}
+              {id === "month"
                 ? "bulan"
                 : id === "year"
                   ? "tahun"
@@ -148,7 +178,8 @@ export default function ResponsiveSelect({
             <div className="responsive-select-options">
               {options.map((option) => {
                 const isSelected =
-                  option.value === selectedValue;
+                  option.value ===
+                  selectedValue;
 
                 return (
                   <button
@@ -160,7 +191,9 @@ export default function ResponsiveSelect({
                         : ""
                     }`}
                     onClick={() =>
-                      handleSelect(option.value)
+                      handleSelect(
+                        option.value
+                      )
                     }
                   >
                     <span>
@@ -171,7 +204,9 @@ export default function ResponsiveSelect({
                       className="responsive-select-radio"
                       aria-hidden="true"
                     >
-                      {isSelected ? "✓" : ""}
+                      {isSelected
+                        ? "✓"
+                        : ""}
                     </span>
                   </button>
                 );

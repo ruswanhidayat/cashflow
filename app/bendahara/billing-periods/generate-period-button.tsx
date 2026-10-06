@@ -209,24 +209,16 @@ export default function GeneratePeriodButton() {
                 Pilih tahun yang ingin dibuat.
               </p>
 
-              <select
-                value={selectedYear}
-                onChange={(event) =>
-                  setSelectedYear(
-                    Number(event.target.value)
-                  )
-                }
+              <ResponsiveSelect
+                id="year"
+                name="period-year"
+                value={String(selectedYear)}
+                options={years.map((year) => ({
+                  value: String(year),
+                  label: String(year),
+                }))}
                 disabled={isLoading}
-              >
-                {years.map((year) => (
-                  <option
-                    key={year}
-                    value={year}
-                  >
-                    {year}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             <div className="confirm-dialog-actions">
