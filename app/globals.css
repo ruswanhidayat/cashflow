@@ -51,6 +51,7 @@
   --honey-glow: 0 0 35px rgba(255, 247, 174, 0.08);
 }
 
+
 /* =========================
    BASE
 ========================= */
@@ -98,9 +99,14 @@ a {
   text-decoration: none;
 }
 
+
+/* =========================
+   SELECT
+========================= */
+
 select {
   width: 100%;
-  height: 38px;
+  height: 36px;
 
   padding: 0 36px 0 12px;
 
@@ -112,12 +118,12 @@ select {
 
   outline: none;
 
-  font-size: 14px;
+  font-size: 13px;
 
   cursor: pointer;
   appearance: none;
 
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http\\://www\\.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23A9BAC4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23A9BAC4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 16px 16px;
@@ -134,6 +140,7 @@ select:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
 
 /* =========================
    USER MENU ARROW
@@ -164,6 +171,7 @@ select:disabled {
   transform: rotate(225deg);
   margin-top: 3px;
 }
+
 
 /* =========================
    GENERATE BILLS
@@ -207,8 +215,8 @@ select:disabled {
   align-items: center;
   justify-content: center;
 
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
 
   border: 1px solid var(--surface);
   border-radius: var(--radius-sm);
@@ -216,9 +224,15 @@ select:disabled {
   background: var(--surface);
   color: var(--accent);
 
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
 }
+
+.generate-bills-disabled {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
 
 /* =========================
    AMBIENT BACKGROUND
@@ -278,6 +292,7 @@ body::before {
   }
 }
 
+
 /* =========================
    LOGIN
 ========================= */
@@ -298,7 +313,7 @@ body::before {
   width: 100%;
   max-width: 430px;
 
-  padding: 36px 40px;
+  padding: 34px 38px;
 
   background: rgba(13, 54, 81, 0.78);
 
@@ -311,7 +326,7 @@ body::before {
 }
 
 .login-brand {
-  margin-bottom: 30px;
+  margin-bottom: 26px;
 }
 
 .login-brand h1 {
@@ -332,28 +347,28 @@ body::before {
 
   color: var(--text-secondary);
 
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
 .form-group {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .form-group label {
   display: block;
 
-  margin-bottom: 8px;
+  margin-bottom: 7px;
 
   color: var(--text);
 
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
 }
 
 .form-input {
   width: 100%;
-  height: 48px;
+  height: 46px;
 
   padding: 0 14px;
 
@@ -367,7 +382,7 @@ body::before {
   outline: none;
 
   font-family: var(--font-open-sans), sans-serif;
-  font-size: 14px;
+  font-size: 13px;
 
   transition:
     border-color 0.2s ease,
@@ -385,6 +400,7 @@ body::before {
     0 0 0 3px rgba(235, 49, 63, 0.14);
 }
 
+
 /* =========================
    BUTTON
 ========================= */
@@ -392,11 +408,11 @@ body::before {
 .primary-button {
   width: auto;
   min-width: 120px;
-  height: 40px;
+  height: 38px;
 
-  padding: 0 16px;
+  padding: 0 15px;
 
-  margin-top: 8px;
+  margin-top: 6px;
 
   color: #ffffff;
 
@@ -406,7 +422,7 @@ body::before {
   border-radius: var(--radius-sm);
 
   font-family: var(--font-open-sans), sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
 
   transition:
@@ -442,21 +458,23 @@ body::before {
 
 .login-card .primary-button {
   width: 100%;
-  height: 48px;
+  height: 46px;
 }
+
 
 /* =========================
    ERROR
 ========================= */
 
 .error-message {
-  margin: 0 0 16px;
+  margin: 0 0 14px;
 
   color: var(--danger);
 
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.5;
 }
+
 
 /* =========================
    MODAL
@@ -483,7 +501,7 @@ body::before {
   width: 100%;
   max-width: 400px;
 
-  padding: 24px;
+  padding: 22px;
 
   background: var(--surface);
 
@@ -501,19 +519,20 @@ body::before {
 
   color: #ffffff;
 
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 700;
 }
 
 .modal > p,
 .modal-card > p {
-  margin: 0 0 20px;
+  margin: 0 0 18px;
 
   color: var(--text-secondary);
 
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.6;
 }
+
 
 /* =========================
    ROLE SELECTION
@@ -522,14 +541,15 @@ body::before {
 .role-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+
+  gap: 7px;
 }
 
 .role-button {
   width: 100%;
-  min-height: 40px;
+  min-height: 38px;
 
-  padding: 8px 14px;
+  padding: 7px 14px;
 
   color: #ffffff;
   background: #0a2b3d;
@@ -537,7 +557,7 @@ body::before {
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-sm);
 
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
 
   cursor: pointer;
@@ -564,6 +584,7 @@ body::before {
   cursor: not-allowed;
 }
 
+
 /* =========================
    MODAL ACTIONS
 ========================= */
@@ -571,13 +592,14 @@ body::before {
 .modal-actions {
   display: flex;
   justify-content: flex-end;
+
   gap: 8px;
 
-  margin-top: 20px;
+  margin-top: 18px;
 }
 
 .modal-actions button {
-  height: 38px;
+  height: 36px;
 
   padding: 0 14px;
 
@@ -587,7 +609,7 @@ body::before {
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-sm);
 
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -610,6 +632,7 @@ body::before {
   background: var(--primary-light);
   border-color: var(--primary-light);
 }
+
 
 /* =========================
    APP SHELL
@@ -652,20 +675,21 @@ body::before {
 .app-header-right {
   display: flex;
   align-items: center;
+
   gap: 10px;
 
   margin-left: auto;
 }
 
 .app-role {
-  padding: 6px 10px;
+  padding: 5px 9px;
 
   border-radius: 999px;
 
   background: var(--primary-soft);
   color: #ffadb5;
 
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
 }
 
@@ -676,9 +700,10 @@ body::before {
 .user-menu-trigger {
   display: flex;
   align-items: center;
+
   gap: 8px;
 
-  padding: 7px 12px;
+  padding: 6px 11px;
 
   color: var(--text);
 
@@ -687,7 +712,7 @@ body::before {
   border: 1px solid var(--border);
   border-radius: 999px;
 
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 
   transition:
@@ -719,7 +744,7 @@ body::before {
 }
 
 .user-menu-info {
-  padding: 8px 12px 10px;
+  padding: 8px 12px 9px;
 
   margin-bottom: 6px;
 
@@ -727,11 +752,11 @@ body::before {
 }
 
 .user-menu-name {
-  margin: 0 0 4px;
+  margin: 0 0 3px;
 
   color: var(--text);
 
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -740,13 +765,13 @@ body::before {
 
   color: var(--text-secondary);
 
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .user-menu-button {
   width: 100%;
 
-  padding: 9px 12px;
+  padding: 8px 12px;
 
   border: 0;
   border-radius: var(--radius-sm);
@@ -757,7 +782,7 @@ body::before {
 
   text-align: left;
 
-  font-size: 13px;
+  font-size: 12px;
 
   transition: background 0.2s ease;
 }
@@ -771,6 +796,7 @@ body::before {
   color: var(--danger);
 }
 
+
 /* =========================
    NAVIGATION
 ========================= */
@@ -778,7 +804,8 @@ body::before {
 .app-nav {
   display: flex;
   align-items: center;
-  gap: 24px;
+
+  gap: 22px;
 
   margin-left: 40px;
 
@@ -788,11 +815,11 @@ body::before {
 .app-nav a {
   position: relative;
 
-  padding: 22px 0;
+  padding: 20px 0;
 
   color: var(--text-secondary);
 
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 
   transition: color 0.2s ease;
@@ -801,6 +828,7 @@ body::before {
 .app-nav a:hover {
   color: var(--accent);
 }
+
 
 /* =========================
    CONTENT
@@ -812,7 +840,7 @@ body::before {
 
   margin: 0 auto;
 
-  padding: 28px 32px 40px;
+  padding: 24px 32px 36px;
 }
 
 .page-heading {
@@ -820,16 +848,17 @@ body::before {
   align-items: flex-end;
   justify-content: space-between;
 
-  gap: 20px;
+  gap: 18px;
 
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .page-heading h1 {
-  margin: 0 0 4px;
+  margin: 0 0 3px;
 
-  font-size: 26px;
+  font-size: 25px;
   line-height: 1.2;
+
   letter-spacing: -0.03em;
 }
 
@@ -838,8 +867,9 @@ body::before {
 
   color: var(--text-secondary);
 
-  font-size: 13px;
+  font-size: 12px;
 }
+
 
 /* =========================
    STATS
@@ -851,13 +881,13 @@ body::before {
   grid-template-columns:
     repeat(2, minmax(0, 1fr));
 
-  gap: 12px;
+  gap: 10px;
 
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .stat-card {
-  padding: 16px 18px;
+  padding: 14px 16px;
 
   background: rgba(13, 54, 81, 0.62);
 
@@ -868,27 +898,28 @@ body::before {
 }
 
 .stat-label {
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 
   color: var(--text-secondary);
 
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
 }
 
 .stat-value {
   color: var(--text);
 
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 700;
 }
+
 
 /* =========================
    CONTENT CARD
 ========================= */
 
 .content-card {
-  padding: 18px;
+  padding: 16px;
 
   background: rgba(13, 54, 81, 0.62);
 
@@ -899,7 +930,7 @@ body::before {
 }
 
 .content-card-header {
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .content-card-header h2 {
@@ -907,19 +938,20 @@ body::before {
 
   color: var(--text);
 
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
 }
 
 .empty-state {
-  padding: 24px 18px;
+  padding: 22px 16px;
 
   color: var(--text-secondary);
 
   text-align: center;
 
-  font-size: 14px;
+  font-size: 13px;
 }
+
 
 /* =========================
    BILL LIST
@@ -927,7 +959,8 @@ body::before {
 
 .bill-list {
   display: grid;
-  gap: 6px;
+
+  gap: 5px;
 }
 
 .bill-item {
@@ -935,7 +968,7 @@ body::before {
   align-items: center;
   justify-content: space-between;
 
-  padding: 12px 14px;
+  padding: 10px 13px;
 
   background: rgba(6, 25, 35, 0.40);
 
@@ -946,14 +979,14 @@ body::before {
 .bill-name {
   color: var(--text);
 
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
 }
 
 .bill-amount {
   color: var(--accent);
 
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -962,8 +995,8 @@ body::before {
   align-items: center;
   justify-content: space-between;
 
-  margin-top: 14px;
-  padding-top: 14px;
+  margin-top: 12px;
+  padding-top: 12px;
 
   border-top: 1px solid var(--border);
 
@@ -971,6 +1004,7 @@ body::before {
 
   font-weight: 700;
 }
+
 
 /* =========================
    TABLE FILTER
@@ -980,11 +1014,11 @@ body::before {
   display: flex;
   align-items: flex-end;
 
-  gap: 10px;
+  gap: 9px;
 
-  padding: 14px 16px;
+  padding: 13px 15px;
 
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 
   background: rgba(6, 25, 35, 0.45);
 
@@ -1000,7 +1034,7 @@ body::before {
 .filter-group label {
   display: block;
 
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 
   color: var(--text-secondary);
 
@@ -1009,12 +1043,14 @@ body::before {
 }
 
 .filter-group select {
-  height: 38px;
+  height: 36px;
+
   font-size: 13px;
 }
 
 .filter-actions {
   display: flex;
+
   gap: 6px;
 }
 
@@ -1024,9 +1060,9 @@ body::before {
   align-items: center;
   justify-content: center;
 
-  height: 38px;
+  height: 36px;
 
-  padding: 0 14px;
+  padding: 0 13px;
 
   border-radius: var(--radius-sm);
 
@@ -1061,8 +1097,10 @@ body::before {
 
 .reset-filter-button:hover {
   color: #ffffff;
+
   background: var(--surface-soft);
 }
+
 
 /* =========================
    DATA TABLE
@@ -1091,7 +1129,7 @@ body::before {
 }
 
 .data-table th {
-  padding: 9px 14px;
+  padding: 8px 14px;
 
   color: var(--accent);
 
@@ -1105,11 +1143,12 @@ body::before {
   text-align: center;
 
   text-transform: uppercase;
+
   letter-spacing: 0.03em;
 }
 
 .data-table td {
-  padding: 9px 14px;
+  padding: 8px 14px;
 
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 
@@ -1132,6 +1171,7 @@ body::before {
   background: rgba(255, 255, 255, 0.025);
 }
 
+
 /* =========================
    STATUS
 ========================= */
@@ -1149,6 +1189,7 @@ body::before {
 
   font-size: 10px;
   font-weight: 700;
+
   letter-spacing: 0.02em;
 }
 
@@ -1176,6 +1217,7 @@ body::before {
   color: rgba(255, 255, 255, 0.65);
 }
 
+
 /* =========================
    TABLE FOOTER
 ========================= */
@@ -1187,13 +1229,13 @@ body::before {
 
   gap: 12px;
 
-  padding-top: 12px;
+  padding-top: 10px;
 }
 
 .table-info {
   color: #8298a5;
 
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .pagination {
@@ -1208,10 +1250,10 @@ body::before {
   align-items: center;
   justify-content: center;
 
-  min-width: 32px;
-  height: 32px;
+  min-width: 30px;
+  height: 30px;
 
-  padding: 0 9px;
+  padding: 0 8px;
 
   color: var(--text-secondary);
 
@@ -1242,8 +1284,10 @@ body::before {
 
 .pagination-button.disabled {
   opacity: 0.35;
+
   cursor: not-allowed;
 }
+
 
 /* =========================
    RESPONSIVE
@@ -1269,16 +1313,16 @@ body::before {
   }
 
   .app-content {
-    padding: 24px 16px 36px;
+    padding: 22px 16px 32px;
   }
 
   .page-heading {
     align-items: stretch;
     flex-direction: column;
 
-    gap: 14px;
+    gap: 12px;
 
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
 
   .page-heading .primary-button {
@@ -1290,7 +1334,7 @@ body::before {
   }
 
   .login-card {
-    padding: 30px 22px;
+    padding: 28px 22px;
   }
 
   .table-filter {
@@ -1312,13 +1356,13 @@ body::before {
   }
 
   .data-table th {
-    padding: 9px 12px;
+    padding: 8px 12px;
 
     font-size: 10px;
   }
 
   .data-table td {
-    padding: 9px 12px;
+    padding: 8px 12px;
   }
 
   .table-footer {
