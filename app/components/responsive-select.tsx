@@ -155,11 +155,9 @@ export default function ResponsiveSelect({
         </span>
 
         <span
-          className="responsive-select-chevron"
-          aria-hidden="true"
-        >
-          ⌄
-        </span>
+            className="responsive-select-chevron"
+            aria-hidden="true"
+        />
       </button>
 
       {/* Desktop dropdown */}
