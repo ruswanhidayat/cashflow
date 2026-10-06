@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 type NotificationType =
   | "success"
   | "error"
@@ -19,6 +21,20 @@ export default function Notification({
   message,
   onClose,
 }: NotificationProps) {
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      onClose();
+    }, 3000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [open, message, onClose]);
+
   if (!open) {
     return null;
   }
