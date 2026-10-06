@@ -28,7 +28,13 @@ export default function AppShell({
         </div>
 
         <div className="app-header-right">
-          <span className="app-role">
+          <span
+            className={`app-role ${
+              currentRole === "BEND"
+                ? "role-bend"
+                : "role-user"
+            }`}
+          >
             {currentRole === "BEND"
               ? "Bendahara"
               : "User"}

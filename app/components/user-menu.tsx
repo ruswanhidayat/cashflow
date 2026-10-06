@@ -135,11 +135,7 @@ export default function UserMenu({
     >
       <button
         type="button"
-        className={`user-menu-trigger ${
-          currentRole === "BEND"
-            ? "role-bend"
-            : "role-user"
-        }`}
+        className="user-menu-trigger"
         onClick={() => setOpen((value) => !value)}
         disabled={loading}
       >
@@ -155,8 +151,6 @@ export default function UserMenu({
             <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z" />
           </svg>
         </span>
-
-        <span className="user-menu-arrow">⌄</span>
       </button>
 
       {open && (

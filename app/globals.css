@@ -713,6 +713,18 @@ body::before {
   white-space: nowrap;
 }
 
+.app-role.role-bend {
+  background: rgba(235, 49, 63, 0.16);
+  border-color: rgba(235, 49, 63, 0.35);
+  color: #ffadb5;
+}
+
+.app-role.role-user {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
 /* =========================================================
    APP CONTENT
    ========================================================= */
@@ -1603,6 +1615,10 @@ body::before {
     fill: currentColor;
   }
 
+  .user-menu-arrow {
+    display: none;
+  }
+
   .user-menu-trigger {
     width: 38px;
     height: 38px;
@@ -1610,10 +1626,6 @@ body::before {
     border-radius: 50%;
     justify-content: center;
     gap: 0;
-  }
-
-  .user-menu-arrow {
-    display: none;
   }
 
   .user-menu-trigger.role-bend {
