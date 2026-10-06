@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type SelectOption = {
   value: string;
@@ -26,6 +26,8 @@ export default function ResponsiveSelect({
     useState(value);
 
   const [isOpen, setIsOpen] = useState(false);
+
+  const selectRef = useRef<HTMLDivElement>(null);
 
   const selectedOption =
     options.find(
@@ -74,6 +76,37 @@ export default function ResponsiveSelect({
       return;
     }
 
+    const handleClickOutside = (
+      event: MouseEvent
+    ) => {
+      if (
+        selectRef.current &&
+        !selectRef.current.contains(
+          event.target as Node
+        )
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
     const originalOverflow =
       document.body.style.overflow;
 
@@ -93,42 +126,28 @@ export default function ResponsiveSelect({
   }
 
   return (
-    <>
+    <div
+      ref={selectRef}
+      className={`responsive-select ${
+        isOpen ? "open" : ""
+      }`}
+    >
       <input
         type="hidden"
         name={name}
         value={selectedValue}
       />
 
-      {/* Desktop */}
-      <select
-        id={id}
-        className="responsive-select-native"
-        value={selectedValue}
-        onChange={(event) =>
-          setSelectedValue(
-            event.target.value
-          )
-        }
-        disabled={disabled}
-      >
-        {options.map((option) => (
-          <option
-            key={option.value}
-            value={option.value}
-          >
-            {option.label}
-          </option>
-        ))}
-      </select>
-
-      {/* Mobile */}
+      {/* Trigger */}
       <button
         type="button"
         className="responsive-select-trigger"
-        onClick={() => setIsOpen(true)}
+        onClick={() =>
+          !disabled &&
+          setIsOpen((current) => !current)
+        }
         disabled={disabled}
-        aria-haspopup="dialog"
+        aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
         <span>
@@ -143,6 +162,58 @@ export default function ResponsiveSelect({
         </span>
       </button>
 
+      {/* Desktop dropdown */}
+      {isOpen && (
+        <div
+          className="responsive-select-dropdown"
+          role="listbox"
+          aria-label={`Pilih ${
+            id === "month"
+              ? "bulan"
+              : id === "year"
+                ? "tahun"
+                : "status"
+          }`}
+        >
+          {options.map((option) => {
+            const isSelected =
+              option.value ===
+              selectedValue;
+
+            return (
+              <button
+                key={option.value}
+                type="button"
+                className={`responsive-select-option ${
+                  isSelected
+                    ? "selected"
+                    : ""
+                }`}
+                onClick={() =>
+                  handleSelect(
+                    option.value
+                  )
+                }
+              >
+                <span>
+                  {option.label}
+                </span>
+
+                <span
+                  className="responsive-select-check"
+                  aria-hidden="true"
+                >
+                  {isSelected
+                    ? "✓"
+                    : ""}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Mobile bottom sheet */}
       {isOpen && (
         <div
           className="responsive-select-overlay"
@@ -215,6 +286,6 @@ export default function ResponsiveSelect({
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
