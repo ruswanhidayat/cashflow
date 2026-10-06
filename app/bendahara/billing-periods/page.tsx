@@ -6,6 +6,7 @@ import { sql } from "@/lib/db";
 import AppShell from "@/app/components/app-shell";
 import GeneratePeriodButton from "./generate-period-button";
 import GenerateBillsButton from "./generate-bills-button";
+import ResponsiveSelect from "@/app/components/responsive-select";
 
 type Role = {
   id: number;
@@ -219,58 +220,72 @@ export default async function BillingPeriodsPage({
           <div className="filter-group">
             <label htmlFor="year">Tahun</label>
 
-            <select
+            <ResponsiveSelect
               id="year"
               name="year"
-              defaultValue={selectedYear ?? ""}
-            >
-              <option value="">Semua tahun</option>
-
-              {years.map((item) => (
-                <option
-                  key={item.year}
-                  value={item.year}
-                >
-                  {item.year}
-                </option>
-              ))}
-            </select>
+              value={String(selectedYear ?? "")}
+              options={[
+                {
+                  value: "",
+                  label: "Semua tahun",
+                },
+                ...years.map((item) => ({
+                  value: String(item.year),
+                  label: String(item.year),
+                })),
+              ]}
+            />
           </div>
 
           <div className="filter-group">
             <label htmlFor="month">Bulan</label>
 
-            <select
+            <ResponsiveSelect
               id="month"
               name="month"
-              defaultValue={selectedMonth ?? ""}
-            >
-              <option value="">Semua bulan</option>
-
-              {Array.from(
-                { length: 12 },
-                (_, index) => index + 1
-              ).map((month) => (
-                <option key={month} value={month}>
-                  {month}
-                </option>
-              ))}
-            </select>
+              value={String(selectedMonth ?? "")}
+              options={[
+                {
+                  value: "",
+                  label: "Semua bulan",
+                },
+                ...Array.from(
+                  { length: 12 },
+                  (_, index) => index + 1
+                ).map((month) => ({
+                  value: String(month),
+                  label: String(month),
+                })),
+              ]}
+            />
           </div>
 
           <div className="filter-group">
             <label htmlFor="status">Status</label>
 
-            <select
+            <ResponsiveSelect
               id="status"
               name="status"
-              defaultValue={selectedStatus ?? ""}
-            >
-              <option value="">Semua status</option>
-              <option value="DRAFT">Draft</option>
-              <option value="OPEN">Open</option>
-              <option value="CLOSED">Closed</option>
-            </select>
+              value={selectedStatus ?? ""}
+              options={[
+                {
+                  value: "",
+                  label: "Semua status",
+                },
+                {
+                  value: "DRAFT",
+                  label: "Draft",
+                },
+                {
+                  value: "OPEN",
+                  label: "Open",
+                },
+                {
+                  value: "CLOSED",
+                  label: "Closed",
+                },
+              ]}
+            />
           </div>
 
           <div className="filter-actions">
