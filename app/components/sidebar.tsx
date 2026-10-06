@@ -39,6 +39,10 @@ export default function Sidebar({
     });
   }
 
+  function toggleMobileSidebar() {
+    setMobileOpen((value) => !value);
+  }
+
   function closeMobileSidebar() {
     setMobileOpen(false);
   }
@@ -56,8 +60,12 @@ export default function Sidebar({
       <button
         type="button"
         className="mobile-sidebar-toggle"
-        onClick={() => setMobileOpen(true)}
-        aria-label="Buka menu"
+        onClick={toggleMobileSidebar}
+        aria-label={
+          mobileOpen
+            ? "Tutup menu"
+            : "Buka menu"
+        }
       >
         <span />
         <span />
