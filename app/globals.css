@@ -1079,7 +1079,7 @@ body::before {
 }
 .confirm-dialog {
   width: min(100%, 460px);
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--surface);
