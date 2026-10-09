@@ -19,8 +19,8 @@ type BillRow = {
   position_name: string | null;
   year: number;
   month: number;
-  cash_1_amount: number | string | null;
-  cash_2_amount: number | string | null;
+  cash_amount: number | string | null;
+  pgb_amount: number | string | null;
 };
 
 type BillsPageProps = {
@@ -341,8 +341,8 @@ export default async function BillsPage({
                     </th>
                   </tr>
                   <tr>
-                    <th className="text-right">Kas 1</th>
-                    <th className="text-right">Kas 2</th>
+                    <th className="text-right">Tagihan Kas</th>
+                    <th className="text-right">Tagihan Paguyuban</th>
                   </tr>
                 </thead>
 
@@ -357,10 +357,10 @@ export default async function BillsPage({
                         {MONTHS[bill.month - 1]} {bill.year}
                       </td>
                       <td className="text-right">
-                        {formatAmount(bill.cash_1_amount)}
+                        {formatAmount(bill.cash_amount)}
                       </td>
                       <td className="text-right">
-                        {formatAmount(bill.cash_2_amount)}
+                        {formatAmount(bill.pgb_amount)}
                       </td>
                     </tr>
                   ))}
