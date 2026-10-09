@@ -61,11 +61,7 @@ export default function Sidebar({
         type="button"
         className="mobile-sidebar-toggle"
         onClick={toggleMobileSidebar}
-        aria-label={
-          mobileOpen
-            ? "Tutup menu"
-            : "Buka menu"
-        }
+        aria-label={mobileOpen ? "Tutup menu" : "Buka menu"}
       >
         <span />
         <span />
@@ -100,19 +96,13 @@ export default function Sidebar({
             className="sidebar-collapse-button"
             onClick={toggleSidebar}
             aria-label={
-              collapsed
-                ? "Perbesar sidebar"
-                : "Perkecil sidebar"
+              collapsed ? "Perbesar sidebar" : "Perkecil sidebar"
             }
             title={
-              collapsed
-                ? "Perbesar sidebar"
-                : "Perkecil sidebar"
+              collapsed ? "Perbesar sidebar" : "Perkecil sidebar"
             }
           >
-            <span>
-              {collapsed ? "›" : "‹"}
-            </span>
+            <span>{collapsed ? "›" : "‹"}</span>
           </button>
         </div>
 
@@ -120,22 +110,13 @@ export default function Sidebar({
           <Link
             href="/bendahara"
             className={`sidebar-link ${
-              isActive("/bendahara")
-                ? "active"
-                : ""
+              isActive("/bendahara") ? "active" : ""
             }`}
             onClick={closeMobileSidebar}
-            title={
-              collapsed
-                ? "Dashboard"
-                : undefined
-            }
+            title={collapsed ? "Dashboard" : undefined}
           >
             <span className="sidebar-icon">
-              <svg
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z" />
               </svg>
             </span>
@@ -153,30 +134,40 @@ export default function Sidebar({
             <Link
               href="/bendahara/billing-periods"
               className={`sidebar-link ${
-                isActive(
-                  "/bendahara/billing-periods"
-                )
+                isActive("/bendahara/billing-periods")
                   ? "active"
                   : ""
               }`}
               onClick={closeMobileSidebar}
-              title={
-                collapsed
-                  ? "Billing Period"
-                  : undefined
-              }
+              title={collapsed ? "Billing Period" : undefined}
             >
               <span className="sidebar-icon">
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M7 2v2H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7Zm12 17H5V9h14v10ZM7 11h3v3H7v-3Zm5 0h3v3h-3v-3Zm5 0h1v3h-1v-3Z" />
                 </svg>
               </span>
 
               <span className="sidebar-label">
                 Billing Period
+              </span>
+            </Link>
+
+            <Link
+              href="/bendahara/bills"
+              className={`sidebar-link ${
+                isActive("/bendahara/bills") ? "active" : ""
+              }`}
+              onClick={closeMobileSidebar}
+              title={collapsed ? "Data Tagihan" : undefined}
+            >
+              <span className="sidebar-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm8 1.5V8h4.5L14 3.5ZM7 12v2h10v-2H7Zm0 4v2h10v-2H7Z" />
+                </svg>
+              </span>
+
+              <span className="sidebar-label">
+                Data Tagihan
               </span>
             </Link>
           </div>
