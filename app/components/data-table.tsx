@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -12,10 +11,10 @@ import {
 } from "@/app/components/table-column-filters";
 
 export type DataTableColumn<T> = {
-  key: string;
+  key: keyof T & string;
   label: string;
   align?: "left" | "center" | "right";
-  render?: (row: T) => ReactNode;
+  format?: "text" | "amount" | "period";
 };
 
 export type DataTableHeaderCell = {
@@ -28,10 +27,10 @@ export type DataTableHeaderCell = {
 export type DataTableProps<T> = {
   endpoint: string;
   columns: DataTableColumn<T>[];
-  getRowKey: (row: T) => string | number;
   filters?: TableFilterConfig[];
   headerRows?: DataTableHeaderCell[][];
   pageSize?: number;
+  rowKeyFields: (keyof T & string)[];
 };
 
 type ApiResponse<T> = {
@@ -45,89 +44,101 @@ type ApiResponse<T> = {
   options?: Record<string, TableFilterOption[]>;
 };
 
+const MONTHS = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
+];
+
+function getRowValue<T>(row: T, key: keyof T & string): unknown {
+  return (row as Record<string, unknown>)[key];
+}
+
 export default function DataTable<T>({
   endpoint,
   columns,
-  getRowKey,
   filters = [],
   headerRows,
   pageSize = 10,
+  rowKeyFields,
 }: DataTableProps<T>) {
   const initialFilters = useMemo(
     () =>
       Object.fromEntries(
-        filters.map((filter) => [filter.key, ""])
+        filters.map((filter) => [filter.key, ""]),
       ) as Record<string, string>,
-    [filters]
+    [filters],
   );
 
   const [filterValues, setFilterValues] =
     useState<Record<string, string>>(initialFilters);
-
   const [page, setPage] = useState(1);
   const [result, setResult] = useState<ApiResponse<T> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const loadData = useCallback(
-    async (
-      values: Record<string, string>,
-      requestedPage: number
-    ) => {
+    async (values: Record<string, string>, requestedPage: number) => {
       setLoading(true);
       setError("");
 
       try {
         const response = await fetch(endpoint, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ...values,
             page: requestedPage,
           }),
         });
 
-        const payload = await response.json();
+        const payload = (await response.json()) as ApiResponse<T> & {
+          message?: string;
+        };
 
         if (!response.ok) {
-          throw new Error(
-            payload.message ?? "Gagal mengambil data."
-          );
+          throw new Error(payload.message ?? "Gagal mengambil data.");
         }
 
-        setResult(payload as ApiResponse<T>);
+        setResult(payload);
         setPage(payload.pagination.page);
       } catch (err) {
         setError(
           err instanceof Error
             ? err.message
-            : "Terjadi kesalahan saat mengambil data."
+            : "Terjadi kesalahan saat mengambil data.",
         );
       } finally {
         setLoading(false);
       }
     },
-    [endpoint]
+    [endpoint],
   );
 
+  // Load initial data once per endpoint/filter configuration.
   useEffect(() => {
+    setFilterValues(initialFilters);
+    setPage(1);
     void loadData(initialFilters, 1);
   }, [loadData, initialFilters]);
 
   const handleFilterChange = useCallback(
     (key: string, value: string) => {
-      const nextValues = {
-        ...filterValues,
-        [key]: value,
-      };
-
+      const nextValues = { ...filterValues, [key]: value };
       setFilterValues(nextValues);
       setPage(1);
       void loadData(nextValues, 1);
     },
-    [filterValues, loadData]
+    [filterValues, loadData],
   );
 
   const handleReset = useCallback(() => {
@@ -140,7 +151,8 @@ export default function DataTable<T>({
     if (
       !result ||
       nextPage < 1 ||
-      nextPage > result.pagination.totalPages
+      nextPage > result.pagination.totalPages ||
+      loading
     ) {
       return;
     }
@@ -149,9 +161,8 @@ export default function DataTable<T>({
   };
 
   const activeFilters = Object.values(filterValues).some(
-    (value) => value !== ""
+    (value) => value !== "",
   );
-
   const rows = result?.data ?? [];
   const pagination = result?.pagination;
   const options = result?.options ?? {};
@@ -160,18 +171,44 @@ export default function DataTable<T>({
     () =>
       filters.map((filter) => ({
         ...filter,
-        options: options[filter.key] ?? filter.options ?? [],
+        // Supports APIs that return options under plural keys, e.g. positions/periods.
+        options:
+          options[`${filter.key}s`] ??
+          options[filter.key] ??
+          filter.options ??
+          [],
       })),
-    [filters, options]
+    [filters, options],
   );
 
   const startItem =
-    rows.length === 0 ? 0 : (page - 1) * pageSize + 1;
-
+    rows.length === 0 ? 0 : (page - 1) * (pagination?.pageSize ?? pageSize) + 1;
   const endItem = Math.min(
-    (page - 1) * pageSize + rows.length,
-    pagination?.totalItems ?? 0
+    (page - 1) * (pagination?.pageSize ?? pageSize) + rows.length,
+    pagination?.totalItems ?? 0,
   );
+
+  function renderCellValue(row: T, column: DataTableColumn<T>): ReactNode {
+    const value = getRowValue(row, column.key);
+
+    if (column.format === "amount") {
+      return value === null || value === undefined
+        ? "—"
+        : Number(value).toLocaleString("id-ID");
+    }
+
+    if (column.format === "period") {
+      const item = row as Record<string, unknown>;
+      const month = Number(item.month);
+      const year = Number(item.year);
+
+      return month >= 1 && month <= 12
+        ? `${MONTHS[month - 1]} ${year}`
+        : "—";
+    }
+
+    return String(value ?? "—");
+  }
 
   return (
     <div className="card">
@@ -262,30 +299,30 @@ export default function DataTable<T>({
                 </td>
               </tr>
             ) : (
-              rows.map((row) => (
-                <tr key={getRowKey(row)}>
-                  {columns.map((column) => (
-                    <td
-                      key={column.key}
-                      className={
-                        column.align === "right"
-                          ? "text-right"
-                          : column.align === "center"
-                            ? "text-center"
-                            : undefined
-                      }
-                    >
-                      {column.render
-                        ? column.render(row)
-                        : String(
-                        (row as unknown as Record<string, unknown>)[
-                            column.key
-                        ] ?? "—"
-                        )}
-                    </td>
-                  ))}
-                </tr>
-              ))
+              rows.map((row) => {
+                const rowKey = rowKeyFields
+                  .map((key) => String(getRowValue(row, key) ?? ""))
+                  .join("-");
+
+                return (
+                  <tr key={rowKey}>
+                    {columns.map((column) => (
+                      <td
+                        key={column.key}
+                        className={
+                          column.align === "right"
+                            ? "text-right"
+                            : column.align === "center"
+                              ? "text-center"
+                              : undefined
+                        }
+                      >
+                        {renderCellValue(row, column)}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -301,9 +338,7 @@ export default function DataTable<T>({
           <div className="pagination">
             <button
               type="button"
-              className={`pagination-button ${
-                page <= 1 ? "disabled" : ""
-              }`}
+              className={`pagination-button ${page <= 1 ? "disabled" : ""}`}
               disabled={page <= 1 || loading}
               onClick={() => handlePageChange(page - 1)}
             >
@@ -319,9 +354,7 @@ export default function DataTable<T>({
               className={`pagination-button ${
                 page >= pagination.totalPages ? "disabled" : ""
               }`}
-              disabled={
-                page >= pagination.totalPages || loading
-              }
+              disabled={page >= pagination.totalPages || loading}
               onClick={() => handlePageChange(page + 1)}
             >
               Berikutnya

@@ -57,29 +57,29 @@ const columns: DataTableColumn<BillRow>[] = [
   {
     key: "name",
     label: "Nama",
+    format: "text",
   },
   {
     key: "position_name",
     label: "Posisi",
-    render: (bill) => bill.position_name ?? "—",
+    format: "text",
   },
   {
-    key: "period",
+    key: "month",
     label: "Periode",
-    render: (bill) =>
-      `${MONTHS[bill.month - 1]} ${bill.year}`,
+    format: "period",
   },
   {
     key: "cash_amount",
     label: "Tagihan Kas",
     align: "right",
-    render: (bill) => formatAmount(bill.cash_amount),
+    format: "amount",
   },
   {
     key: "pgb_amount",
     label: "Tagihan Paguyuban",
     align: "right",
-    render: (bill) => formatAmount(bill.pgb_amount),
+    format: "amount",
   },
 ];
 
@@ -183,16 +183,14 @@ export default async function BillsPage() {
           </p>
         </div>
       </div>
-
+      
       <DataTable<BillRow>
         endpoint="/api/bills"
         columns={columns}
         headerRows={headerRows}
         filters={filters}
         pageSize={10}
-        getRowKey={(bill) =>
-          `${bill.user_id}-${bill.period_id}`
-        }
+        rowKeyFields={["user_id", "period_id"]}
       />
     </AppShell>
   );
