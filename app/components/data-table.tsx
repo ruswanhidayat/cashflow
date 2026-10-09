@@ -171,6 +171,15 @@ export default function DataTable<T>({
     () =>
       filters.map((filter) => ({
         ...filter,
+        columnKey:
+          filter.columnKey ??
+          (columns.some((column) => column.key === filter.key)
+            ? filter.key
+            : filter.key === "position" && columns.some((column) => column.key === "position_name")
+              ? "position_name"
+              : filter.key === "period" && columns.some((column) => column.key === "month")
+                ? "month"
+                : filter.key),
         // Supports APIs that return options under plural keys, e.g. positions/periods.
         options:
           options[`${filter.key}s`] ??
@@ -178,7 +187,7 @@ export default function DataTable<T>({
           filter.options ??
           [],
       })),
-    [filters, options],
+    [filters, options, columns],
   );
 
   const startItem =
@@ -236,6 +245,14 @@ export default function DataTable<T>({
             {headerRows ? (
               headerRows.map((headerRow, rowIndex) => (
                 <tr key={`header-${rowIndex}`}>
+                  {rowIndex === 0 && filters.length > 0 && (
+                    <th
+                      key="table-filter-reset-heading"
+                      className="table-column-filter-reset-heading"
+                      rowSpan={headerRows.length}
+                      aria-label="Reset filter"
+                    />
+                  )}
                   {headerRow.map((cell, cellIndex) => (
                     <th
                       key={`${rowIndex}-${cellIndex}`}
@@ -256,6 +273,13 @@ export default function DataTable<T>({
               ))
             ) : (
               <tr>
+                {filters.length > 0 && (
+                  <th
+                    key="table-filter-reset-heading"
+                    className="table-column-filter-reset-heading"
+                    aria-label="Reset filter"
+                  />
+                )}
                 {columns.map((column) => (
                   <th
                     key={column.key}
@@ -278,7 +302,8 @@ export default function DataTable<T>({
                 filters={resolvedFilters}
                 values={filterValues}
                 onChange={handleFilterChange}
-                columnCount={columns.length}
+                columnKeys={columns.map((column) => column.key)}
+                onReset={handleReset}
               />
             )}
           </thead>
@@ -286,13 +311,13 @@ export default function DataTable<T>({
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={columns.length} className="text-center">
+                <td colSpan={columns.length + (filters.length > 0 ? 1 : 0)} className="text-center">
                   Memuat data...
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="text-center">
+                <td colSpan={columns.length + (filters.length > 0 ? 1 : 0)} className="text-center">
                   {activeFilters
                     ? "Tidak ada data yang sesuai dengan filter."
                     : "Belum ada data."}
@@ -306,6 +331,9 @@ export default function DataTable<T>({
 
                 return (
                   <tr key={rowKey}>
+                    {filters.length > 0 && (
+                      <td className="table-column-filter-reset-cell" aria-hidden="true" />
+                    )}
                     {columns.map((column) => (
                       <td
                         key={column.key}

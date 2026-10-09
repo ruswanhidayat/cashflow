@@ -1671,3 +1671,106 @@ body::before {
     max-height: 72vh;
   }
 }
+
+/* override */
+
+/* =========================================================
+   TABLE COLUMN FILTERS - UPDATE
+   ========================================================= */
+
+.table-column-filter-reset-heading,
+.table-column-filter-reset-cell {
+  width: 42px;
+  min-width: 42px;
+  max-width: 42px;
+  padding-right: 6px !important;
+  padding-left: 6px !important;
+  text-align: center;
+}
+
+.table-column-filter-reset-heading {
+  border-right: 0;
+}
+
+.table-column-filter-reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.table-column-filter-reset:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(235, 49, 63, 0.08);
+}
+
+.table-column-filter-reset:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.table-column-filter-control .responsive-select {
+  min-width: 0;
+}
+
+.table-column-filter-control .responsive-select-trigger {
+  min-width: 0;
+  padding-right: 30px;
+  padding-left: 10px;
+}
+
+.table-column-filter-control .responsive-select.has-clear .responsive-select-trigger {
+  padding-right: 48px;
+}
+
+.table-column-filter-control .responsive-select-value {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.responsive-select-clear {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: 27px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.responsive-select-clear:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+@media (max-width: 700px) {
+  .table-column-filter-reset-heading,
+  .table-column-filter-reset-cell {
+    width: 38px;
+    min-width: 38px;
+    max-width: 38px;
+  }
+}

@@ -1,7 +1,7 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
+import ResponsiveSelect from "@/app/components/responsive-select";
 
 export type TableFilterOption = {
   label: string;
@@ -13,6 +13,8 @@ export type TableFilterConfig = {
   type: "text" | "select";
   placeholder: string;
   options?: TableFilterOption[];
+  /** Key kolom tabel tempat filter ini ditampilkan. */
+  columnKey?: string;
 };
 
 type TableFilterToolbarProps = {
@@ -26,9 +28,7 @@ export function TableFilterToolbar({
 }: TableFilterToolbarProps) {
   return (
     <div className="table-filter-toolbar">
-      <div className="table-filter-toolbar-info">
-        <span>Filter data</span>
-      </div>
+      <div className="table-filter-toolbar-info" aria-hidden="true" />
 
       <button
         type="button"
@@ -46,14 +46,16 @@ type TableColumnFilterRowProps = {
   filters: TableFilterConfig[];
   values: Record<string, string>;
   onChange: (key: string, value: string) => void;
-  columnCount: number;
+  columnKeys: string[];
+  onReset: () => void;
 };
 
 export function TableColumnFilterRow({
   filters,
   values,
   onChange,
-  columnCount,
+  columnKeys,
+  onReset,
 }: TableColumnFilterRowProps) {
   const [searchValues, setSearchValues] = useState(values);
 
@@ -65,16 +67,12 @@ export function TableColumnFilterRow({
     const timers: ReturnType<typeof setTimeout>[] = [];
 
     for (const filter of filters) {
-      if (filter.type !== "text") {
-        continue;
-      }
+      if (filter.type !== "text") continue;
 
       const localValue = searchValues[filter.key] ?? "";
       const parentValue = values[filter.key] ?? "";
 
-      if (localValue === parentValue) {
-        continue;
-      }
+      if (localValue === parentValue) continue;
 
       const timer = setTimeout(() => {
         onChange(filter.key, localValue);
@@ -83,44 +81,56 @@ export function TableColumnFilterRow({
       timers.push(timer);
     }
 
-    return () => {
-      timers.forEach(clearTimeout);
-    };
+    return () => timers.forEach(clearTimeout);
   }, [searchValues, values, filters, onChange]);
 
   function updateFilter(key: string, value: string) {
-    setSearchValues((previous) => ({
-      ...previous,
-      [key]: value,
-    }));
+    setSearchValues((previous) => ({ ...previous, [key]: value }));
   }
 
   function clearFilter(key: string) {
-    setSearchValues((previous) => ({
-      ...previous,
-      [key]: "",
-    }));
-
+    setSearchValues((previous) => ({ ...previous, [key]: "" }));
     onChange(key, "");
   }
 
-  const filterByKey = new Map(
-    filters.map((filter) => [filter.key, filter])
+  const filterByColumn = new Map(
+    filters.map((filter) => [filter.columnKey ?? filter.key, filter]),
   );
-
-  // Urutan filter mengikuti kolom Nama, Posisi, dan Periode.
-  const columnKeys = ["name", "position", "period"];
 
   return (
     <tr className="table-column-filters">
-      {Array.from({ length: columnCount }, (_, index) => {
-        const key = columnKeys[index];
-        const filter = key
-          ? filterByKey.get(key)
-          : undefined;
+      <td className="table-column-filter-reset-cell">
+        <button
+          type="button"
+          className="table-column-filter-reset"
+          onClick={onReset}
+          disabled={!Object.values(values).some((value) => value !== "")}
+          aria-label="Reset semua filter"
+          title="Reset semua filter"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M3.5 11a8.5 8.5 0 1 1 2.2 5.7M3.5 4.5V11h6.5"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </td>
+
+      {columnKeys.map((columnKey) => {
+        const filter = filterByColumn.get(columnKey);
 
         if (!filter) {
-          return <td key={`filter-empty-${index}`} />;
+          return <td key={`filter-empty-${columnKey}`} />;
         }
 
         const value = searchValues[filter.key] ?? "";
@@ -140,31 +150,26 @@ export function TableColumnFilterRow({
                   className="table-column-filter-input"
                 />
               ) : (
-                <select
+                <ResponsiveSelect
+                  id={`table-filter-${filter.key}`}
+                  name={`table-filter-${filter.key}`}
                   value={value}
-                  onChange={(event) => {
-                    updateFilter(filter.key, event.target.value);
-                    onChange(filter.key, event.target.value);
+                  options={[
+                    { value: "", label: filter.placeholder },
+                    ...(filter.options ?? []).filter(
+                      (option) => option.value !== "",
+                    ),
+                  ]}
+                  onChange={(nextValue) => {
+                    updateFilter(filter.key, nextValue);
+                    onChange(filter.key, nextValue);
                   }}
-                  aria-label={`Filter ${filter.placeholder}`}
-                  className="table-column-filter-select"
-                >
-                  <option value="">
-                    {filter.placeholder}
-                  </option>
-
-                  {(filter.options ?? []).map((option) => (
-                    <option
-                      key={option.value}
-                      value={option.value}
-                    >
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                  clearable={value !== ""}
+                  onClear={() => clearFilter(filter.key)}
+                />
               )}
 
-              {value !== "" && (
+              {filter.type === "text" && value !== "" && (
                 <button
                   type="button"
                   className="table-column-filter-clear"

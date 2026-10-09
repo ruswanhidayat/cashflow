@@ -13,6 +13,9 @@ type ResponsiveSelectProps = {
   value: string;
   options: SelectOption[];
   disabled?: boolean;
+  onChange?: (value: string) => void;
+  clearable?: boolean;
+  onClear?: () => void;
 };
 
 export default function ResponsiveSelect({
@@ -21,6 +24,9 @@ export default function ResponsiveSelect({
   value,
   options,
   disabled = false,
+  onChange,
+  clearable = false,
+  onClear,
 }: ResponsiveSelectProps) {
   const [selectedValue, setSelectedValue] =
     useState(value);
@@ -123,6 +129,18 @@ export default function ResponsiveSelect({
   ) {
     setSelectedValue(nextValue);
     setIsOpen(false);
+    onChange?.(nextValue);
+  }
+
+  function handleClear(event: React.MouseEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+    setSelectedValue("");
+    setIsOpen(false);
+    if (onClear) {
+      onClear();
+    } else {
+      onChange?.("");
+    }
   }
 
   return (
@@ -130,7 +148,7 @@ export default function ResponsiveSelect({
       ref={selectRef}
       className={`responsive-select ${
         isOpen ? "open" : ""
-      }`}
+      } ${clearable && selectedValue ? "has-clear" : ""}`}
     >
       <input
         type="hidden"
@@ -173,6 +191,18 @@ export default function ResponsiveSelect({
         </svg>
         </span>
       </button>
+
+      {clearable && selectedValue !== "" && (
+        <button
+          type="button"
+          className="responsive-select-clear"
+          onClick={handleClear}
+          aria-label="Hapus pilihan"
+          title="Hapus pilihan"
+        >
+          ×
+        </button>
+      )}
 
       {/* Desktop dropdown */}
       {isOpen && (
