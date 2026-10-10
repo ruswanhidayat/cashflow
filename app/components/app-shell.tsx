@@ -36,6 +36,10 @@ export default function AppShell({
     setSidebarReady(true);
   }, []);
 
+  if (!sidebarReady) {
+    return null;
+  }
+
   function toggleSidebar() {
     const nextValue = !collapsed;
 
