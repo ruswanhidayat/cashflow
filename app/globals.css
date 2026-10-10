@@ -1896,7 +1896,7 @@ body::before {
   pointer-events: none;
 }
 
-.login-page.gradient-untitled {
+/* .login-page.gradient-untitled {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -1918,4 +1918,4 @@ body::before {
 .login-card {
   position: relative;
   z-index: 1;
-}
+} */
