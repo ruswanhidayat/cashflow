@@ -219,9 +219,20 @@ export async function POST(request: Request) {
           ${status}::varchar IS NULL
           OR status = ${status}
         )
-      ORDER BY status DESC, year ASC, month ASC
-      LIMIT ${PAGE_SIZE}
-      OFFSET ${offset}
+      ORDER BY
+				CASE
+					WHEN status = 'OPEN'
+						AND bill_generation_status <> 'GENERATED' THEN 1
+					WHEN status = 'OPEN'
+						AND bill_generation_status = 'GENERATED' THEN 2
+					WHEN status = 'DRAFT' THEN 3
+					WHEN status = 'CLOSED' THEN 4
+					ELSE 5
+				END ASC,
+				year ASC,
+				month ASC
+			LIMIT ${PAGE_SIZE}
+			OFFSET ${offset}
     `;
 
     // 10. Ambil opsi tahun untuk dropdown filter
