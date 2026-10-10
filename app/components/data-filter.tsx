@@ -47,13 +47,12 @@ export default function DataFilter({
 
           {field.type === "select" ? (
             <ResponsiveSelect
-              id={`data-filter-${field.key}`}
-              name={field.key}
-              value={values[field.key] ?? ""}
-              options={field.options ?? []}
-              onChange={(value) =>
-                onChange(field.key, value)
-              }
+            id={`data-filter-${field.key}`}
+            name={field.key}
+            label={field.label}
+            value={values[field.key] ?? ""}
+            options={field.options ?? []}
+            onChange={(value) => onChange(field.key, value)}
             />
           ) : (
             <input

@@ -12,6 +12,7 @@ type ResponsiveSelectProps = {
   name: string;
   value: string;
   options: SelectOption[];
+  label?: string;
   disabled?: boolean;
   onChange?: (value: string) => void;
   clearable?: boolean;
@@ -23,6 +24,7 @@ export default function ResponsiveSelect({
   name,
   value,
   options,
+  label,
   disabled = false,
   onChange,
   clearable = false,
@@ -210,11 +212,12 @@ export default function ResponsiveSelect({
           className="responsive-select-dropdown"
           role="listbox"
           aria-label={`Pilih ${
-            id === "month"
+            label ??
+            (id === "month"
               ? "bulan"
               : id === "year"
                 ? "tahun"
-                : "status"
+                : "status")
           }`}
         >
           {options.map((option) => {
@@ -281,11 +284,12 @@ export default function ResponsiveSelect({
               className="responsive-select-sheet-title"
             >
               Pilih{" "}
-              {id === "month"
-                ? "bulan"
-                : id === "year"
-                  ? "tahun"
-                  : "status"}
+              {label ??
+                (id === "month"
+                  ? "bulan"
+                  : id === "year"
+                    ? "tahun"
+                    : "status")}
             </div>
 
             <div className="responsive-select-options">
