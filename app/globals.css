@@ -469,9 +469,12 @@ body::before {
   --sidebar-width: 68px;
 }
 
-.app-page:not(.sidebar-ready) .app-sidebar,
+.app-page:not(.sidebar-ready) .app-sidebar {
+  visibility: hidden;
+}
+
 .app-page:not(.sidebar-ready) .app-content {
-  transition: none !important;
+  visibility: hidden;
 }
 /* =========================================================
  APP HEADER
