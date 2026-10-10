@@ -537,7 +537,7 @@ body::before {
  ========================================================= */
 .app-content {
   width: calc(100% - var(--sidebar-width));
-  max-width: 1180px;
+  max-width: none;
   margin-left: var(--sidebar-width);
   padding: 24px 32px 36px;
   transition:
