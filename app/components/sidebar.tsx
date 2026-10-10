@@ -1,43 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 
 type SidebarProps = {
   currentRole: string;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
 };
 
 export default function Sidebar({
   currentRole,
+  collapsed,
+  onToggleCollapsed,
 }: SidebarProps) {
   const pathname = usePathname();
 
-  const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    const savedState = localStorage.getItem(
-      "cashflow-sidebar-collapsed"
-    );
-
-    if (savedState === "true") {
-      setCollapsed(true);
-    }
-  }, []);
-
-  function toggleSidebar() {
-    setCollapsed((value) => {
-      const nextValue = !value;
-
-      localStorage.setItem(
-        "cashflow-sidebar-collapsed",
-        String(nextValue)
-      );
-
-      return nextValue;
-    });
-  }
 
   function toggleMobileSidebar() {
     setMobileOpen((value) => !value);
@@ -94,7 +74,7 @@ export default function Sidebar({
           <button
             type="button"
             className="sidebar-collapse-button"
-            onClick={toggleSidebar}
+            onClick={onToggleCollapsed}
             aria-label={
               collapsed ? "Perbesar sidebar" : "Perkecil sidebar"
             }

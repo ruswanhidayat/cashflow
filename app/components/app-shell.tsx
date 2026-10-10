@@ -1,3 +1,7 @@
+
+"use client";
+
+import { useEffect, useState } from "react";
 import Sidebar from "./sidebar";
 import UserMenu from "./user-menu";
 
@@ -20,8 +24,39 @@ export default function AppShell({
   currentRole,
   roles,
 }: AppShellProps) {
+  const [collapsed, setCollapsed] = useState(false);
+  const [sidebarReady, setSidebarReady] = useState(false);
+
+  useEffect(() => {
+    const savedState = localStorage.getItem(
+      "cashflow-sidebar-collapsed"
+    );
+
+    setCollapsed(savedState === "true");
+    setSidebarReady(true);
+  }, []);
+
+  function toggleSidebar() {
+    const nextValue = !collapsed;
+
+    localStorage.setItem(
+      "cashflow-sidebar-collapsed",
+      String(nextValue)
+    );
+
+    setCollapsed(nextValue);
+  }
+
   return (
-    <div className="app-page">
+    <div
+      className={[
+        "app-page",
+        collapsed ? "sidebar-collapsed" : "",
+        sidebarReady ? "sidebar-ready" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <header className="app-header">
         <div className="app-brand">
           Buku Kas
@@ -48,7 +83,11 @@ export default function AppShell({
         </div>
       </header>
 
-      <Sidebar currentRole={currentRole} />
+      <Sidebar
+        currentRole={currentRole}
+        collapsed={collapsed}
+        onToggleCollapsed={toggleSidebar}
+      />
 
       <main className="app-content">
         {children}
