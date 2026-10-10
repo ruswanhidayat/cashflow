@@ -1877,14 +1877,14 @@ body::before {
  * PALE KERRIA #FFF7AE
  * RAIN INDIGO #A9BAC4
  */
-.gradient-untitled {
+.login-page.gradient-untitled {
   position: relative;
   background: linear-gradient(135deg, #0D3651 12.5%, #EB313F 37.5%, #FFF7AE 62.5%, #A9BAC4 87.5%); /* fallback: engines without oklab interpolation */
   background: linear-gradient(135deg in oklab, #0D3651 12.5%, #EB313F 37.5%, #FFF7AE 62.5%, #A9BAC4 87.5%);
   /* soft fallback: CSS cannot draw the mesh field. Export SVG or PNG for the real thing. */
 }
 
-.gradient-untitled::after {
+.login-page.gradient-untitled::after {
   content: '';
   position: absolute;
   inset: 0;

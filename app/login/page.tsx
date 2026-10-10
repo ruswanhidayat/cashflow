@@ -82,7 +82,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="gradient-untitled">
+    <main className="login-page gradient-untitled">
       <section className="login-card">
         <div className="login-brand">
           <h1>Buku Kas</h1>
