@@ -262,7 +262,7 @@ export default function BillingPeriodsClient() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Aksi</th>
+                    <th className="billing-period-action-column">Aksi</th>
                     <th>Tahun</th>
                     <th>Bulan</th>
                     <th>Mulai</th>
@@ -275,15 +275,13 @@ export default function BillingPeriodsClient() {
                 <tbody>
                   {periods.map((period) => (
                     <tr key={period.id}>
-                      <td>
-                        <GenerateBillsButton
-                          periodId={period.id}
-                          periodStatus={period.status}
-                          billGenerationStatus={
-                            period.bill_generation_status
-                          }
-                        />
-                      </td>
+                      <td className="billing-period-action-column">
+												<GenerateBillsButton
+													periodId={period.id}
+													periodStatus={period.status}
+													billGenerationStatus={period.bill_generation_status}
+												/>
+											</td>
 
                       <td>{period.year}</td>
                       <td>
