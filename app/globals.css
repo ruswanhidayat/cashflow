@@ -62,6 +62,12 @@ select,
 textarea {
   font: inherit;
 }
+
+/* Prevent the browser's default rectangular tap flash on touch screens. */
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
 button {
   cursor: pointer;
 }
