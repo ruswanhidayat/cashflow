@@ -4,10 +4,6 @@ import { redirect } from "next/navigation";
 
 import { sql } from "@/lib/db";
 import AppShell from "@/app/components/app-shell";
-import DataTable, {
-  type DataTableColumn,
-  type DataTableHeaderCell,
-} from "@/app/components/data-table";
 
 type Role = {
   id: number;
@@ -26,48 +22,28 @@ type BillRow = {
   pgb_amount: number | string | null;
 };
 
-const columns: DataTableColumn<BillRow>[] = [
-  {
-    key: "name",
-    label: "Nama",
-    format: "text",
-  },
-  {
-    key: "position_name",
-    label: "Posisi",
-    format: "text",
-  },
-  {
-    key: "month",
-    label: "Periode",
-    format: "period",
-  },
-  {
-    key: "cash_amount",
-    label: "Tagihan Kas",
-    align: "right",
-    format: "amount",
-  },
-  {
-    key: "pgb_amount",
-    label: "Tagihan Paguyuban",
-    align: "right",
-    format: "amount",
-  },
+const MONTHS = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
 ];
 
-const headerRows: DataTableHeaderCell[][] = [
-  [
-    { label: "Nama", rowSpan: 2 },
-    { label: "Posisi", rowSpan: 2 },
-    { label: "Periode", rowSpan: 2 },
-    { label: "Tagihan", colSpan: 2, align: "center" },
-  ],
-  [
-    { label: "Tagihan Kas", align: "right" },
-    { label: "Tagihan Paguyuban", align: "right" },
-  ],
-];
+function formatAmount(amount: number | string | null) {
+  if (amount === null || amount === undefined) {
+    return "—";
+  }
+
+  return Number(amount).toLocaleString("id-ID");
+}
 
 export default async function BillsPage() {
   const cookieStore = await cookies();
@@ -123,6 +99,46 @@ export default async function BillsPage() {
     ORDER BY r.id
   `) as Role[];
 
+  const bills = (await sql`
+    SELECT
+      u.id AS user_id,
+      u.name,
+      p.name AS position_name,
+      bp.id AS period_id,
+      bp.year,
+      bp.month,
+      MAX(
+        CASE
+          WHEN ct.code = 'KAS' THEN b.amount
+        END
+      ) AS cash_amount,
+      MAX(
+        CASE
+          WHEN ct.code = 'PGB' THEN b.amount
+        END
+      ) AS pgb_amount
+    FROM bills b
+    INNER JOIN users u
+      ON u.id = b.user_id
+    LEFT JOIN positions p
+      ON p.id = u.position_id
+    INNER JOIN billing_periods bp
+      ON bp.id = b.period_id
+    INNER JOIN cash_types ct
+      ON ct.id = b.cash_type_id
+    GROUP BY
+      u.id,
+      u.name,
+      p.name,
+      bp.id,
+      bp.year,
+      bp.month
+    ORDER BY
+      bp.year DESC,
+      bp.month DESC,
+      u.name ASC
+  `) as BillRow[];
+
   return (
     <AppShell
       userName={user.name}
@@ -139,13 +155,63 @@ export default async function BillsPage() {
         </div>
       </div>
 
-      <DataTable<BillRow>
-        endpoint="/api/bills"
-        columns={columns}
-        headerRows={headerRows}
-        pageSize={10}
-        rowKeyFields={["user_id", "period_id"]}
-      />
+      <div className="card">
+        <div className="table-wrapper">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th rowSpan={2}>Nama</th>
+                <th rowSpan={2}>Posisi</th>
+                <th rowSpan={2}>Periode</th>
+                <th colSpan={2} className="text-center">
+                  Tagihan
+                </th>
+              </tr>
+              <tr>
+                <th className="text-right">Tagihan Kas</th>
+                <th className="text-right">
+                  Tagihan Paguyuban
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {bills.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center">
+                    Belum ada data tagihan.
+                  </td>
+                </tr>
+              ) : (
+                bills.map((bill) => (
+                  <tr
+                    key={`${bill.user_id}-${bill.period_id}`}
+                  >
+                    <td>{bill.name}</td>
+                    <td>{bill.position_name ?? "—"}</td>
+                    <td>
+                      {MONTHS[bill.month - 1] ?? "—"}{" "}
+                      {bill.year}
+                    </td>
+                    <td className="text-right">
+                      {formatAmount(bill.cash_amount)}
+                    </td>
+                    <td className="text-right">
+                      {formatAmount(bill.pgb_amount)}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="table-footer">
+          <span className="table-info">
+            Total {bills.length} data tagihan
+          </span>
+        </div>
+      </div>
     </AppShell>
   );
 }
