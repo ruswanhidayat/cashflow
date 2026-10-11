@@ -19,6 +19,7 @@ type ResponsiveSelectProps = {
   onChange?: (value: string[]) => void;
   clearable?: boolean;
   onClear?: () => void;
+  placeholder?: string;
 };
 
 export default function ResponsiveSelect({
@@ -32,6 +33,7 @@ export default function ResponsiveSelect({
   onChange,
   clearable = false,
   onClear,
+  placeholder,
 }: ResponsiveSelectProps) {
   const [selectedValues, setSelectedValues] =
     useState<string[]>(value);
@@ -46,7 +48,7 @@ export default function ResponsiveSelect({
 
   const displayLabel =
     selectedLabels.join(", ") ||
-    options[0]?.label ||
+    placeholder ||
     `Pilih ${label ?? "opsi"}`;
 
   useEffect(() => {

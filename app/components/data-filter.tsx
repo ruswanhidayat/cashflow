@@ -60,6 +60,10 @@ export default function DataFilter({
                 id={`data-filter-${field.key}`}
                 name={field.key}
                 label={field.label}
+                placeholder={
+                  field.placeholder ??
+                  `Pilih ${field.label.toLowerCase()}`
+                }
                 value={
                   Array.isArray(value)
                     ? value
