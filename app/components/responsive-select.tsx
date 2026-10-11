@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -10,11 +11,12 @@ type SelectOption = {
 type ResponsiveSelectProps = {
   id: string;
   name: string;
-  value: string;
+  value: string[];
   options: SelectOption[];
   label?: string;
   disabled?: boolean;
-  onChange?: (value: string) => void;
+  multiple?: boolean;
+  onChange?: (value: string[]) => void;
   clearable?: boolean;
   onClear?: () => void;
 };
@@ -26,25 +28,29 @@ export default function ResponsiveSelect({
   options,
   label,
   disabled = false,
+  multiple = false,
   onChange,
   clearable = false,
   onClear,
 }: ResponsiveSelectProps) {
-  const [selectedValue, setSelectedValue] =
-    useState(value);
+  const [selectedValues, setSelectedValues] =
+    useState<string[]>(value);
 
   const [isOpen, setIsOpen] = useState(false);
 
   const selectRef = useRef<HTMLDivElement>(null);
 
-  const selectedOption =
-    options.find(
-      (option) =>
-        option.value === selectedValue
-    ) ?? options[0];
+  const selectedLabels = options
+    .filter((option) => selectedValues.includes(option.value))
+    .map((option) => option.label);
+
+  const displayLabel =
+    selectedLabels.join(", ") ||
+    options[0]?.label ||
+    `Pilih ${label ?? "opsi"}`;
 
   useEffect(() => {
-    setSelectedValue(value);
+    setSelectedValues(value);
   }, [value]);
 
   useEffect(() => {
@@ -58,24 +64,16 @@ export default function ResponsiveSelect({
       return;
     }
 
-    const handleKeyDown = (
-      event: KeyboardEvent
-    ) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener(
-      "keydown",
-      handleKeyDown
-    );
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.removeEventListener(
-        "keydown",
-        handleKeyDown
-      );
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen]);
 
@@ -84,23 +82,16 @@ export default function ResponsiveSelect({
       return;
     }
 
-    const handleClickOutside = (
-      event: MouseEvent
-    ) => {
+    const handleClickOutside = (event: MouseEvent) => {
       if (
         selectRef.current &&
-        !selectRef.current.contains(
-          event.target as Node
-        )
+        !selectRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside
-    );
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
       document.removeEventListener(
@@ -115,34 +106,77 @@ export default function ResponsiveSelect({
       return;
     }
 
-    const originalOverflow =
-      document.body.style.overflow;
-
+    const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
     return () => {
-      document.body.style.overflow =
-        originalOverflow;
+      document.body.style.overflow = originalOverflow;
     };
   }, [isOpen]);
 
-  function handleSelect(
-    nextValue: string
-  ) {
-    setSelectedValue(nextValue);
+  function handleSelect(nextValue: string) {
+    if (multiple) {
+      const nextValues = selectedValues.includes(nextValue)
+        ? selectedValues.filter((item) => item !== nextValue)
+        : [...selectedValues, nextValue];
+
+      setSelectedValues(nextValues);
+      onChange?.(nextValues);
+      return;
+    }
+
+    const nextValues = nextValue === "" ? [] : [nextValue];
+
+    setSelectedValues(nextValues);
     setIsOpen(false);
-    onChange?.(nextValue);
+    onChange?.(nextValues);
   }
 
-  function handleClear(event: React.MouseEvent<HTMLButtonElement>) {
+  function handleClear(
+    event: React.MouseEvent<HTMLButtonElement>
+  ) {
     event.stopPropagation();
-    setSelectedValue("");
+
+    setSelectedValues([]);
     setIsOpen(false);
+
     if (onClear) {
       onClear();
     } else {
-      onChange?.("");
+      onChange?.([]);
     }
+  }
+
+  function renderOptions() {
+    return options.map((option) => {
+      const isSelected = selectedValues.includes(option.value);
+
+      return (
+        <button
+          key={option.value}
+          type="button"
+          className={`responsive-select-option ${
+            isSelected ? "selected" : ""
+          }`}
+          role="option"
+          aria-selected={isSelected}
+          onClick={() => handleSelect(option.value)}
+        >
+          <span>{option.label}</span>
+
+          <span
+            className={
+              multiple
+                ? "responsive-select-check"
+                : "responsive-select-radio"
+            }
+            aria-hidden="true"
+          >
+            {isSelected ? "✓" : ""}
+          </span>
+        </button>
+      );
+    });
   }
 
   return (
@@ -150,123 +184,81 @@ export default function ResponsiveSelect({
       ref={selectRef}
       className={`responsive-select ${
         isOpen ? "open" : ""
-      } ${clearable && selectedValue ? "has-clear" : ""}`}
+      } ${
+        clearable && selectedValues.length > 0
+          ? "has-clear"
+          : ""
+      }`}
     >
-      <input
-        type="hidden"
-        name={name}
-        value={selectedValue}
-      />
+      {selectedValues.map((selectedValue) => (
+        <input
+          key={selectedValue}
+          type="hidden"
+          name={name}
+          value={selectedValue}
+        />
+      ))}
 
-      {/* Trigger */}
       <button
         type="button"
         className="responsive-select-trigger"
         onClick={() =>
-          !disabled &&
-          setIsOpen((current) => !current)
+          !disabled && setIsOpen((current) => !current)
         }
         disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
-        <span>
-          {selectedOption.label}
-        </span>
+        <span>{displayLabel}</span>
 
         <span
-        className="responsive-select-chevron"
-        aria-hidden="true"
+          className="responsive-select-chevron"
+          aria-hidden="true"
         >
-        <svg
+          <svg
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-        >
+          >
             <path
-            d="M6 9L12 15L18 9"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+              d="M6 9L12 15L18 9"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
-        </svg>
+          </svg>
         </span>
       </button>
 
-      {clearable && selectedValue !== "" && (
+      {clearable && selectedValues.length > 0 && (
         <button
           type="button"
           className="responsive-select-clear"
           onClick={handleClear}
-          aria-label="Hapus pilihan"
+          aria-label={`Hapus pilihan ${label ?? ""}`}
           title="Hapus pilihan"
         >
           ×
         </button>
       )}
 
-      {/* Desktop dropdown */}
       {isOpen && (
         <div
           className="responsive-select-dropdown"
           role="listbox"
-          aria-label={`Pilih ${
-            label ??
-            (id === "month"
-              ? "bulan"
-              : id === "year"
-                ? "tahun"
-                : "status")
-          }`}
+          aria-label={`Pilih ${label ?? "opsi"}`}
+          aria-multiselectable={multiple}
         >
-          {options.map((option) => {
-            const isSelected =
-              option.value ===
-              selectedValue;
-
-            return (
-              <button
-                key={option.value}
-                type="button"
-                className={`responsive-select-option ${
-                  isSelected
-                    ? "selected"
-                    : ""
-                }`}
-                onClick={() =>
-                  handleSelect(
-                    option.value
-                  )
-                }
-              >
-                <span>
-                  {option.label}
-                </span>
-
-                <span
-                  className="responsive-select-check"
-                  aria-hidden="true"
-                >
-                  {isSelected
-                    ? "✓"
-                    : ""}
-                </span>
-              </button>
-            );
-          })}
+          {renderOptions()}
         </div>
       )}
 
-      {/* Mobile bottom sheet */}
       {isOpen && (
         <div
           className="responsive-select-overlay"
           onMouseDown={(event) => {
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
+            if (event.target === event.currentTarget) {
               setIsOpen(false);
             }
           }}
@@ -283,52 +275,26 @@ export default function ResponsiveSelect({
               id={`${id}-sheet-title`}
               className="responsive-select-sheet-title"
             >
-              Pilih{" "}
-              {label ??
-                (id === "month"
-                  ? "bulan"
-                  : id === "year"
-                    ? "tahun"
-                    : "status")}
+              Pilih {label ?? "opsi"}
             </div>
 
-            <div className="responsive-select-options">
-              {options.map((option) => {
-                const isSelected =
-                  option.value ===
-                  selectedValue;
-
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className={`responsive-select-option ${
-                      isSelected
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      handleSelect(
-                        option.value
-                      )
-                    }
-                  >
-                    <span>
-                      {option.label}
-                    </span>
-
-                    <span
-                      className="responsive-select-radio"
-                      aria-hidden="true"
-                    >
-                      {isSelected
-                        ? "✓"
-                        : ""}
-                    </span>
-                  </button>
-                );
-              })}
+            <div
+              className="responsive-select-options"
+              role="listbox"
+              aria-multiselectable={multiple}
+            >
+              {renderOptions()}
             </div>
+
+            {multiple && (
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() => setIsOpen(false)}
+              >
+                Selesai
+              </button>
+            )}
           </div>
         </div>
       )}

@@ -169,7 +169,7 @@ select:disabled {
 }
 
 .data-filter-input-clear:hover {
-  background: var(--surface-hover);
+  background: transparent;
   color: var(--text);
 }
 

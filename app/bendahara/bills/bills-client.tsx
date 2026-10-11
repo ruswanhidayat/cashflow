@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import DataFilter, {
   type DataFilterField,
+  type DataFilterValue,
 } from "@/app/components/data-filter";
 
 type BillRow = {
@@ -39,14 +40,14 @@ type SearchResponse = {
 
 type Filters = {
   name: string;
-  month: string;
-  year: string;
+  month: string[];
+  year: string[];
 };
 
 const initialFilters: Filters = {
   name: "",
-  month: "",
-  year: "",
+  month: [],
+  year: [],
 };
 
 const monthNames = [
@@ -147,33 +148,43 @@ export default function BillsClient() {
       key: "month",
       label: "Bulan",
       type: "select",
-      options: [
-        { value: "", label: "Semua bulan" },
-        ...monthNames.map((name, index) => ({
-          value: String(index + 1),
-          label: name,
-        })),
-      ],
+      multiple: true,
+      options: monthNames.map((name, index) => ({
+        value: String(index + 1),
+        label: name,
+      })),
     },
     {
       key: "year",
       label: "Tahun",
       type: "select",
-      options: [
-        { value: "", label: "Semua tahun" },
-        ...years,
-      ],
+      multiple: true,
+      options: years,
     },
   ];
 
   function handleFilterChange(
     key: string,
-    value: string
+    value: DataFilterValue
   ) {
-    setFilters((current) => ({
-      ...current,
-      [key]: value,
-    }));
+    setFilters((current) => {
+      if (key === "name") {
+        return {
+          ...current,
+          name: typeof value === "string" ? value : "",
+        };
+      }
+
+      if (key === "month" && Array.isArray(value)) {
+        return { ...current, month: value };
+      }
+
+      if (key === "year" && Array.isArray(value)) {
+        return { ...current, year: value };
+      }
+
+      return current;
+    });
 
     setPage(1);
   }

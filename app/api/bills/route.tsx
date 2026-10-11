@@ -44,6 +44,32 @@ function parsePositiveInteger(value: unknown): number | null {
     : null;
 }
 
+function parsePositiveIntegerArray(
+  value: unknown,
+  max?: number
+): number[] | null {
+  if (!Array.isArray(value)) {
+    return null;
+  }
+
+  const parsed: number[] = [];
+
+  for (const item of value) {
+    const number = parsePositiveInteger(item);
+
+    if (
+      number === null ||
+      (max !== undefined && number > max)
+    ) {
+      return null;
+    }
+
+    parsed.push(number);
+  }
+
+  return [...new Set(parsed)];
+}
+
 export async function POST(request: Request) {
   try {
     // 1. Validasi sesi dan role
@@ -119,17 +145,24 @@ export async function POST(request: Request) {
       typeof body.name === "string"
         ? body.name.trim().slice(0, 100)
         : "";
-
+    
     // 5. Validasi filter bulan
-    let month: number | null = null;
+    let months: number[] = [];
 
-    if (
-      body.month !== undefined &&
-      body.month !== ""
-    ) {
-      month = parsePositiveInteger(body.month);
+    if (body.month !== undefined) {
+      const parsedMonths =
+        parsePositiveIntegerArray(body.month, 12);
 
-      if (month === null || month < 1 || month > 12) {
+      if (parsedMonths === null) {
+        return jsonError(
+          "Filter bulan tidak valid.",
+          400
+        );
+      }
+
+      months = parsedMonths;
+
+      if (months.some((month) => month < 1)) {
         return jsonError(
           "Filter bulan tidak valid.",
           400
@@ -138,20 +171,20 @@ export async function POST(request: Request) {
     }
 
     // 6. Validasi filter tahun
-    let year: number | null = null;
+    let yearsFilter: number[] = [];
 
-    if (
-      body.year !== undefined &&
-      body.year !== ""
-    ) {
-      year = parsePositiveInteger(body.year);
+    if (body.year !== undefined) {
+      const parsedYears =
+        parsePositiveIntegerArray(body.year);
 
-      if (year === null) {
+      if (parsedYears === null) {
         return jsonError(
           "Filter tahun tidak valid.",
           400
         );
       }
+
+      yearsFilter = parsedYears;
     }
 
     // 7. Validasi halaman
@@ -198,12 +231,12 @@ export async function POST(request: Request) {
             OR u.name ILIKE ${"%" + name + "%"}
           )
           AND (
-            ${month}::integer IS NULL
-            OR bp.month = ${month}
+            cardinality(${months}::integer[]) = 0
+            OR bp.month = ANY(${months}::integer[])
           )
           AND (
-            ${year}::integer IS NULL
-            OR bp.year = ${year}
+            cardinality(${yearsFilter}::integer[]) = 0
+            OR bp.year = ANY(${yearsFilter}::integer[])
           )
         GROUP BY
           b.user_id,
@@ -259,12 +292,12 @@ export async function POST(request: Request) {
           OR u.name ILIKE ${"%" + name + "%"}
         )
         AND (
-          ${month}::integer IS NULL
-          OR bp.month = ${month}
+          cardinality(${months}::integer[]) = 0
+          OR bp.month = ANY(${months}::integer[])
         )
         AND (
-          ${year}::integer IS NULL
-          OR bp.year = ${year}
+          cardinality(${yearsFilter}::integer[]) = 0
+          OR bp.year = ANY(${yearsFilter}::integer[])
         )
       GROUP BY
         u.id,

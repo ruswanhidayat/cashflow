@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import DataFilter, {
   type DataFilterField,
+  type DataFilterValue,
 } from "@/app/components/data-filter";
 import GeneratePeriodButton from "./generate-period-button";
 import GenerateBillsButton from "./generate-bills-button";
@@ -186,12 +187,19 @@ export default function BillingPeriodsClient() {
 
   function handleFilterChange(
     key: string,
-    value: string
+    value: DataFilterValue
   ) {
-    setFilters((current) => ({
-      ...current,
-      [key]: value,
-    }));
+    if (Array.isArray(value)) {
+      setFilters((current) => ({
+        ...current,
+        [key]: value[0] ?? "",
+      }));
+    } else {
+      setFilters((current) => ({
+        ...current,
+        [key]: value,
+      }));
+    }
 
     setPage(1);
   }
