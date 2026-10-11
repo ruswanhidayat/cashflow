@@ -6,6 +6,7 @@
   --surface: #0d3651;
   --surface-soft: #10415f;
   --surface-hover: #14506f;
+  --input-background: rgba(6, 25, 35, 0.72);
   --primary: #eb313f;
   --primary-light: #f04451;
   --primary-dark: #d92735;
@@ -80,7 +81,7 @@ select {
   height: 36px;
   padding: 0 36px 0 12px;
   color: #ffffff;
-  background-color: #061923;
+  background: var(--input-background);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-sm);
   outline: none;
@@ -264,7 +265,7 @@ body::before {
   height: 46px;
   padding: 0 14px;
   color: #ffffff;
-  background: rgba(6, 25, 35, 0.72);
+  background: var(--input-background);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-sm);
   outline: none;
