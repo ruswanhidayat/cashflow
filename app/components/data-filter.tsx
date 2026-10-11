@@ -47,28 +47,44 @@ export default function DataFilter({
 
           {field.type === "select" ? (
             <ResponsiveSelect
-            id={`data-filter-${field.key}`}
-            name={field.key}
-            label={field.label}
-            value={values[field.key] ?? ""}
-            options={field.options ?? []}
-            onChange={(value) => onChange(field.key, value)}
-            />
-          ) : (
-            <input
               id={`data-filter-${field.key}`}
               name={field.key}
-              type="text"
-              className="form-input data-filter-input"
-              placeholder={
-                field.placeholder ??
-                `Cari ${field.label.toLowerCase()}...`
-              }
+              label={field.label}
               value={values[field.key] ?? ""}
-              onChange={(event) =>
-                onChange(field.key, event.target.value)
-              }
+              options={field.options ?? []}
+              onChange={(value) => onChange(field.key, value)}
+              clearable
+              onClear={() => onChange(field.key, "")}
             />
+          ) : (
+            <div className="data-filter-input-wrapper">
+              <input
+                id={`data-filter-${field.key}`}
+                name={field.key}
+                type="text"
+                className="form-input data-filter-input"
+                placeholder={
+                  field.placeholder ??
+                  `Cari ${field.label.toLowerCase()}...`
+                }
+                value={values[field.key] ?? ""}
+                onChange={(event) =>
+                  onChange(field.key, event.target.value)
+                }
+              />
+
+              {(values[field.key] ?? "") !== "" && (
+                <button
+                  type="button"
+                  className="data-filter-input-clear"
+                  onClick={() => onChange(field.key, "")}
+                  aria-label={`Hapus ${field.label}`}
+                  title={`Hapus ${field.label}`}
+                >
+                  ×
+                </button>
+              )}
+            </div>
           )}
         </div>
       ))}
