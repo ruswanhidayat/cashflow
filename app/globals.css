@@ -159,7 +159,7 @@ select:disabled {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: var(--surface-soft);
+  background: transparent;
   color: var(--text-secondary);
   font-size: 18px;
   line-height: 1;

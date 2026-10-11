@@ -68,6 +68,7 @@ export default function DataFilter({
                   `Cari ${field.label.toLowerCase()}...`
                 }
                 value={values[field.key] ?? ""}
+                autoComplete="off"
                 onChange={(event) =>
                   onChange(field.key, event.target.value)
                 }
