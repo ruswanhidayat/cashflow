@@ -9,10 +9,6 @@ import DataTable, {
   type DataTableHeaderCell,
 } from "@/app/components/data-table";
 
-import type {
-  TableFilterConfig,
-} from "@/app/components/table-column-filters";
-
 type Role = {
   id: number;
   code: string;
@@ -29,29 +25,6 @@ type BillRow = {
   cash_amount: number | string | null;
   pgb_amount: number | string | null;
 };
-
-const MONTHS = [
-  "Januari",
-  "Februari",
-  "Maret",
-  "April",
-  "Mei",
-  "Juni",
-  "Juli",
-  "Agustus",
-  "September",
-  "Oktober",
-  "November",
-  "Desember",
-];
-
-function formatAmount(amount: number | string | null) {
-  if (amount === null || amount === undefined) {
-    return "—";
-  }
-
-  return Number(amount).toLocaleString("id-ID");
-}
 
 const columns: DataTableColumn<BillRow>[] = [
   {
@@ -94,24 +67,6 @@ const headerRows: DataTableHeaderCell[][] = [
     { label: "Tagihan Kas", align: "right" },
     { label: "Tagihan Paguyuban", align: "right" },
   ],
-];
-
-const filters: TableFilterConfig[] = [
-  {
-    key: "name",
-    type: "text",
-    placeholder: "Cari nama...",
-  },
-  {
-    key: "position",
-    type: "select",
-    placeholder: "Semua posisi",
-  },
-  {
-    key: "period",
-    type: "select",
-    placeholder: "Semua periode",
-  },
 ];
 
 export default async function BillsPage() {
@@ -183,12 +138,11 @@ export default async function BillsPage() {
           </p>
         </div>
       </div>
-      
+
       <DataTable<BillRow>
         endpoint="/api/bills"
         columns={columns}
         headerRows={headerRows}
-        filters={filters}
         pageSize={10}
         rowKeyFields={["user_id", "period_id"]}
       />
