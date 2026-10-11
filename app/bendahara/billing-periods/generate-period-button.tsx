@@ -218,6 +218,13 @@ export default function GeneratePeriodButton() {
                   value: String(year),
                   label: String(year),
                 }))}
+                onChange={(values) => {
+                  const year = Number(values[0]);
+
+                  if (Number.isSafeInteger(year) && year > 0) {
+                    setSelectedYear(year);
+                  }
+                }}
                 disabled={isLoading}
               />
             </div>
