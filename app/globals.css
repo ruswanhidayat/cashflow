@@ -1175,20 +1175,25 @@ body::before {
   width: 100%;
   margin-top: 16px;
 }
+
 .confirm-dialog-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: stretch;
   gap: 10px;
-  padding: 16px 24px;
+  padding: 16px 20px;
   border-top: 1px solid var(--border);
   background: rgba(13, 54, 81, 0.35);
 }
+
 .confirm-dialog-actions button {
-  min-width: 90px;
+  flex: 1;
+  min-width: 0;
 }
+
 .confirm-dialog-actions .primary-button {
   margin-top: 0;
 }
+
 /* =========================
  NOTIFICATION
 \========================= */
@@ -1707,15 +1712,6 @@ body::before {
   }
   .confirm-dialog-content {
     padding: 20px;
-  }
-  .confirm-dialog-actions {
-    padding: 14px 20px;
-  }
-  .confirm-dialog-actions button {
-    flex: 1;
-  }
-  .confirm-dialog-actions .primary-button {
-    margin-top: 0;
   }
   .notification {
     right: 16px;
