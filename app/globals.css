@@ -1240,7 +1240,7 @@ body::before {
   padding: 0 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--surface);
+  background: var(--input-background);
   color: var(--text);
   font-family: var(--font-open-sans), sans-serif;
   font-size: 13px;
