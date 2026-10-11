@@ -213,7 +213,7 @@ export default function GeneratePeriodButton() {
               <ResponsiveSelect
                 id="year"
                 name="period-year"
-                value={String(selectedYear)}
+                value={[String(selectedYear)]}
                 options={years.map((year) => ({
                   value: String(year),
                   label: String(year),
