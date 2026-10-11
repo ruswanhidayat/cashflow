@@ -13,8 +13,8 @@ type Session = {
 
 type BillFilters = {
   name?: unknown;
-  position?: unknown;
-  period?: unknown;
+  month?: unknown;
+  year?: unknown;
   page?: unknown;
 };
 
@@ -120,35 +120,35 @@ export async function POST(request: Request) {
         ? body.name.trim().slice(0, 100)
         : "";
 
-    // 5. Validasi filter posisi
-    let positionId: number | null = null;
+    // 5. Validasi filter bulan
+    let month: number | null = null;
 
     if (
-      body.position !== undefined &&
-      body.position !== ""
+      body.month !== undefined &&
+      body.month !== ""
     ) {
-      positionId = parsePositiveInteger(body.position);
+      month = parsePositiveInteger(body.month);
 
-      if (positionId === null) {
+      if (month === null || month < 1 || month > 12) {
         return jsonError(
-          "Filter posisi tidak valid.",
+          "Filter bulan tidak valid.",
           400
         );
       }
     }
 
-    // 6. Validasi filter periode
-    let periodId: number | null = null;
+    // 6. Validasi filter tahun
+    let year: number | null = null;
 
     if (
-      body.period !== undefined &&
-      body.period !== ""
+      body.year !== undefined &&
+      body.year !== ""
     ) {
-      periodId = parsePositiveInteger(body.period);
+      year = parsePositiveInteger(body.year);
 
-      if (periodId === null) {
+      if (year === null) {
         return jsonError(
-          "Filter periode tidak valid.",
+          "Filter tahun tidak valid.",
           400
         );
       }
@@ -170,31 +170,15 @@ export async function POST(request: Request) {
       requestedPage = parsedPage;
     }
 
-    // 8. Ambil opsi dropdown dari database
-    const [positions, periods] = await Promise.all([
-      sql`
-        SELECT DISTINCT
-          p.id,
-          p.name
-        FROM positions p
-        INNER JOIN users u
-          ON u.position_id = p.id
-        INNER JOIN bills b
-          ON b.user_id = u.id
-        WHERE p.is_active = TRUE
-        ORDER BY p.name ASC
-      `,
-      sql`
-        SELECT DISTINCT
-          bp.id,
-          bp.year,
-          bp.month
-        FROM billing_periods bp
-        INNER JOIN bills b
-          ON b.period_id = bp.id
-        ORDER BY bp.year DESC, bp.month DESC
-      `,
-    ]);
+    // 8. Ambil opsi tahun dari periode yang memiliki tagihan
+    const years = await sql`
+      SELECT DISTINCT
+        bp.year
+      FROM billing_periods bp
+      INNER JOIN bills b
+        ON b.period_id = bp.id
+      ORDER BY bp.year DESC
+    `;
 
     // 9. Hitung total baris sesuai filter
     const countResult = await sql`
@@ -206,8 +190,6 @@ export async function POST(request: Request) {
         FROM bills b
         INNER JOIN users u
           ON u.id = b.user_id
-        LEFT JOIN positions p
-          ON p.id = u.position_id
         INNER JOIN billing_periods bp
           ON bp.id = b.period_id
         WHERE
@@ -216,14 +198,16 @@ export async function POST(request: Request) {
             OR u.name ILIKE ${"%" + name + "%"}
           )
           AND (
-            ${positionId}::integer IS NULL
-            OR p.id = ${positionId}
+            ${month}::integer IS NULL
+            OR bp.month = ${month}
           )
           AND (
-            ${periodId}::integer IS NULL
-            OR bp.id = ${periodId}
+            ${year}::integer IS NULL
+            OR bp.year = ${year}
           )
-        GROUP BY b.user_id, b.period_id
+        GROUP BY
+          b.user_id,
+          b.period_id
       ) filtered_bills
     `;
 
@@ -275,12 +259,12 @@ export async function POST(request: Request) {
           OR u.name ILIKE ${"%" + name + "%"}
         )
         AND (
-          ${positionId}::integer IS NULL
-          OR p.id = ${positionId}
+          ${month}::integer IS NULL
+          OR bp.month = ${month}
         )
         AND (
-          ${periodId}::integer IS NULL
-          OR bp.id = ${periodId}
+          ${year}::integer IS NULL
+          OR bp.year = ${year}
         )
       GROUP BY
         u.id,
@@ -307,26 +291,9 @@ export async function POST(request: Request) {
         totalPages,
       },
       options: {
-        positions: positions.map((item) => ({
-          value: String(item.id),
-          label: item.name,
-        })),
-        periods: periods.map((item) => ({
-          value: String(item.id),
-          label: `${[
-            "Januari",
-            "Februari",
-            "Maret",
-            "April",
-            "Mei",
-            "Juni",
-            "Juli",
-            "Agustus",
-            "September",
-            "Oktober",
-            "November",
-            "Desember",
-          ][Number(item.month) - 1]} ${item.year}`,
+        years: years.map((item) => ({
+          value: String(item.year),
+          label: String(item.year),
         })),
       },
     });
