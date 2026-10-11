@@ -43,6 +43,53 @@ function parsePositiveInteger(value: unknown): number | null {
     : null;
 }
 
+function parseIntegerFilter(
+  value: unknown,
+  field: "tahun" | "bulan"
+): { values: number[]; error?: string } {
+  if (
+    value === undefined ||
+    value === null ||
+    value === ""
+  ) {
+    return { values: [] };
+  }
+
+  const items = Array.isArray(value) ? value : [value];
+  const values: number[] = [];
+
+  for (const item of items) {
+    if (field === "tahun") {
+      if (
+        (typeof item !== "string" &&
+          typeof item !== "number") ||
+        !/^\d{4}$/.test(String(item))
+      ) {
+        return {
+          values: [],
+          error: "Filter tahun tidak valid.",
+        };
+      }
+
+      values.push(Number(item));
+      continue;
+    }
+
+    const month = parsePositiveInteger(item);
+
+    if (month === null || month > 12) {
+      return {
+        values: [],
+        error: "Filter bulan tidak valid.",
+      };
+    }
+
+    values.push(month);
+  }
+
+  return { values: [...new Set(values)] };
+}
+
 export async function POST(request: Request) {
   try {
     // 1. Validasi session
@@ -110,35 +157,24 @@ export async function POST(request: Request) {
     }
 
     // 4. Validasi tahun
-    let year: number | null = null;
+    const yearResult = parseIntegerFilter(body.year, "tahun");
 
-    if (body.year !== undefined && body.year !== "") {
-      if (
-        typeof body.year !== "string" &&
-        typeof body.year !== "number"
-      ) {
-        return jsonError("Filter tahun tidak valid.", 400);
-      }
-
-      const yearText = String(body.year);
-
-      if (!/^\d{4}$/.test(yearText)) {
-        return jsonError("Filter tahun tidak valid.", 400);
-      }
-
-      year = Number(yearText);
+    if (yearResult.error) {
+      return jsonError(yearResult.error, 400);
     }
+
+    const years = yearResult.values;
+    const yearsCsv = years.join(",");
 
     // 5. Validasi bulan
-    let month: number | null = null;
+    const monthResult = parseIntegerFilter(body.month, "bulan");
 
-    if (body.month !== undefined && body.month !== "") {
-      month = parsePositiveInteger(body.month);
-
-      if (month === null || month > 12) {
-        return jsonError("Filter bulan tidak valid.", 400);
-      }
+    if (monthResult.error) {
+      return jsonError(monthResult.error, 400);
     }
+
+    const months = monthResult.values;
+    const monthsCsv = months.join(",");    
 
     // 6. Validasi status
     let status: string | null = null;
@@ -173,10 +209,17 @@ export async function POST(request: Request) {
       SELECT COUNT(*) AS total
       FROM billing_periods
       WHERE
-        (${year}::integer IS NULL OR year = ${year})
+        (
+          ${yearsCsv} = ''
+          OR year = ANY(
+            string_to_array(${yearsCsv}, ',')::integer[]
+          )
+        )
         AND (
-          ${month}::integer IS NULL
-          OR month = ${month}
+          ${monthsCsv} = ''
+          OR month = ANY(
+            string_to_array(${monthsCsv}, ',')::integer[]
+          )
         )
         AND (
           ${status}::varchar IS NULL
@@ -210,10 +253,17 @@ export async function POST(request: Request) {
         bill_generation_status
       FROM billing_periods
       WHERE
-        (${year}::integer IS NULL OR year = ${year})
+        (
+          ${yearsCsv} = ''
+          OR year = ANY(
+            string_to_array(${yearsCsv}, ',')::integer[]
+          )
+        )
         AND (
-          ${month}::integer IS NULL
-          OR month = ${month}
+          ${monthsCsv} = ''
+          OR month = ANY(
+            string_to_array(${monthsCsv}, ',')::integer[]
+          )
         )
         AND (
           ${status}::varchar IS NULL

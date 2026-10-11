@@ -39,14 +39,14 @@ type SearchResponse = {
 };
 
 type Filters = {
-  year: string;
-  month: string;
+  year: string[];
+  month: string[];
   status: string;
 };
 
 const initialFilters: Filters = {
-  year: "",
-  month: "",
+  year: [],
+  month: [],
   status: "",
 };
 
@@ -161,6 +161,7 @@ export default function BillingPeriodsClient() {
       type: "select",
       placeholder: "Pilih tahun",
       options: years,
+      multiple: true,
     },
     {
       key: "month",
@@ -171,6 +172,7 @@ export default function BillingPeriodsClient() {
         value: String(index + 1),
         label: name,
       })),
+      multiple: true,
     },
     {
       key: "status",
@@ -185,17 +187,29 @@ export default function BillingPeriodsClient() {
     key: string,
     value: DataFilterValue
   ) {
-    if (Array.isArray(value)) {
-      setFilters((current) => ({
-        ...current,
-        [key]: value[0] ?? "",
-      }));
-    } else {
-      setFilters((current) => ({
-        ...current,
-        [key]: value,
-      }));
-    }
+    setFilters((current) => {
+      if (key === "year" || key === "month") {
+        return {
+          ...current,
+          [key]: Array.isArray(value)
+            ? value
+            : value
+              ? [value]
+              : [],
+        };
+      }
+
+      if (key === "status") {
+        return {
+          ...current,
+          status: Array.isArray(value)
+            ? value[0] ?? ""
+            : value,
+        };
+      }
+
+      return current;
+    });
 
     setPage(1);
   }
