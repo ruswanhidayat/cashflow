@@ -14,6 +14,7 @@ export type DataFilterField = {
   type: "text" | "select";
   placeholder?: string;
   options?: DataFilterOption[];
+  multiple?: boolean;
 };
 
 type DataFilterProps = {
