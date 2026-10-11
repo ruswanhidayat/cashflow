@@ -1295,13 +1295,16 @@ body::before {
   position: relative;
   width: 100%;
 }
+
 .responsive-select-trigger {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 38px;
-  padding: 0 12px;
+  min-height: 38px;
+  height: auto;
+  padding: 8px 12px;
+  box-sizing: border-box;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--input-background);
@@ -1313,42 +1316,48 @@ body::before {
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
 }
+
+.responsive-select-value {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+
 .responsive-select-trigger:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.06);
 }
+
 .responsive-select-trigger:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
 .responsive-select.open .responsive-select-trigger {
   border-color: var(--input-background);
 }
+
 .responsive-select-chevron {
   display: flex;
+  flex: 0 0 16px;
   align-items: center;
   justify-content: center;
-
-  flex: 0 0 16px;
-
   width: 16px;
   height: 16px;
-
   margin-left: 8px;
-
   color: var(--text-secondary);
-
   transition: transform 0.2s ease;
 }
 
 .responsive-select-chevron svg {
   display: block;
-
   width: 16px;
   height: 16px;
 }
 
-.responsive-select.open
-.responsive-select-chevron {
+.responsive-select.open .responsive-select-chevron {
   transform: rotate(180deg);
 }
 
@@ -1850,6 +1859,41 @@ body::before {
   .data-filter-actions .reset-filter-button {
     width: 100%;
     min-height: 42px;
+  }
+
+  .data-filter .responsive-select-trigger {
+    position: relative;
+    display: block;
+    min-height: 38px;
+    height: auto;
+    padding: 8px 58px 8px 12px;
+    box-sizing: border-box;
+  }
+
+  .data-filter .responsive-select-value {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+  }
+
+  .data-filter .responsive-select-chevron {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    margin-left: 0;
+    transform: translateY(-50%);
+  }
+
+  .data-filter .responsive-select.open .responsive-select-chevron {
+    transform: translateY(-50%) rotate(180deg);
+  }
+
+  .data-filter .responsive-select-clear {
+    top: 50%;
+    right: 34px;
   }
 
   /* RESPONSIVE SELECT — MOBILE GRID */

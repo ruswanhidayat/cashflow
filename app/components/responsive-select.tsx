@@ -211,7 +211,9 @@ export default function ResponsiveSelect({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
-        <span>{displayLabel}</span>
+        <span className="responsive-select-value">
+          {displayLabel}
+        </span>
 
         <span
           className="responsive-select-chevron"
