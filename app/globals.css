@@ -1818,23 +1818,30 @@ body::before {
   position: absolute;
   z-index: 2;
   top: 50%;
-  right: 27px;
+  right: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
+  width: 18px;
   height: 22px;
   padding: 0;
   border: 0;
-  border-radius: 50%;
-  background: var(--surface-soft);
-  color: var(--text-secondary);
-  font-size: 18px;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 17px;
+  font-weight: 500;
   line-height: 1;
   cursor: pointer;
   transform: translateY(-50%);
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: color 0.2s ease;
 }
+
+.responsive-select-clear:hover {
+  background: transparent;
+  color: var(--text);
+}
+
 
 .responsive-select-clear:hover {
   background: var(--surface-hover);
