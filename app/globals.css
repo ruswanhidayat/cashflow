@@ -1352,6 +1352,20 @@ body::before {
   transform: rotate(180deg);
 }
 
+.responsive-select-value {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.responsive-select.has-clear .responsive-select-value {
+  padding-right: 26px;
+  box-sizing: border-box;
+}
+
 /* =========================================================
  DESKTOP DROPDOWN
  ========================================================= */
