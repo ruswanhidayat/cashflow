@@ -66,7 +66,6 @@ const monthNames = [
 ];
 
 const statusOptions = [
-  { value: "", label: "Semua status" },
   { value: "DRAFT", label: "Draft" },
   { value: "OPEN", label: "Open" },
   { value: "CLOSED", label: "Closed" },
@@ -160,27 +159,24 @@ export default function BillingPeriodsClient() {
       key: "year",
       label: "Tahun",
       type: "select",
-      options: [
-        { value: "", label: "Semua tahun" },
-        ...years,
-      ],
+      placeholder: "Pilih tahun",
+      options: years,
     },
     {
       key: "month",
       label: "Bulan",
       type: "select",
-      options: [
-        { value: "", label: "Semua bulan" },
-        ...monthNames.map((name, index) => ({
-          value: String(index + 1),
-          label: name,
-        })),
-      ],
+      placeholder: "Pilih bulan",
+      options: monthNames.map((name, index) => ({
+        value: String(index + 1),
+        label: name,
+      })),
     },
     {
       key: "status",
       label: "Status",
       type: "select",
+      placeholder: "Pilih status",
       options: statusOptions,
     },
   ];

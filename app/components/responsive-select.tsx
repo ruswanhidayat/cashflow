@@ -289,13 +289,15 @@ export default function ResponsiveSelect({
             </div>
 
             {multiple && (
-              <button
-                type="button"
-                className="secondary-button"
-                onClick={() => setIsOpen(false)}
-              >
-                Selesai
-              </button>
+              <div className="responsive-select-sheet-footer">
+                <button
+                  type="button"
+                  className="secondary-button responsive-select-done"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Pilih
+                </button>
+              </div>
             )}
           </div>
         </div>

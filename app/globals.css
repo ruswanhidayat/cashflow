@@ -1886,4 +1886,16 @@ body::before {
   .responsive-select-options .responsive-select-radio {
     flex: 0 0 22px;
   }
+  .responsive-select-sheet-footer {
+    padding: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .responsive-select-sheet-footer .responsive-select-done {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    box-sizing: border-box;
+  }
 }
