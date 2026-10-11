@@ -286,7 +286,7 @@ export async function POST(request: Request) {
     `;
 
     // 10. Ambil opsi tahun untuk dropdown filter
-    const years = await sql`
+    const yearOptions = await sql`
       SELECT DISTINCT year
       FROM billing_periods
       ORDER BY year DESC
@@ -302,7 +302,7 @@ export async function POST(request: Request) {
         totalPages,
       },
       options: {
-        years: years.map((item) => ({
+        years: yearOptions.map((item) => ({
           value: String(item.year),
           label: String(item.year),
         })),
