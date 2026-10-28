@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 
 import ConfirmDialog from "@/app/components/confirm-dialog";
 import Notification from "@/app/components/notification";
@@ -10,17 +9,20 @@ type GenerateBillsButtonProps = {
   periodId: number;
   periodStatus: string;
   billGenerationStatus: string;
+  onGenerated: () => Promise<void>;
 };
 
 export default function GenerateBillsButton({
   periodId,
   periodStatus,
   billGenerationStatus,
+  onGenerated,
 }: GenerateBillsButtonProps) {
-  const router = useRouter();
-
   const [loading, setLoading] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  // Mencegah request ganda sebelum perubahan state selesai dirender.
+  const requestInProgress = useRef(false);
 
   const [notification, setNotification] = useState<{
     type: "success" | "error";
@@ -51,10 +53,19 @@ export default function GenerateBillsButton({
   }
 
   function handleGenerateClick() {
+    if (requestInProgress.current) {
+      return;
+    }
+
     setConfirmOpen(true);
   }
 
   async function handleGenerate() {
+    if (requestInProgress.current) {
+      return;
+    }
+
+    requestInProgress.current = true;
     setConfirmOpen(false);
     setLoading(true);
 
@@ -86,12 +97,10 @@ export default function GenerateBillsButton({
           "Bills berhasil di-generate.",
       });
 
-      router.refresh();
+      // Ambil ulang data agar status billing period langsung diperbarui.
+      await onGenerated();
     } catch (error) {
-      console.error(
-        "Generate bills error:",
-        error
-      );
+      console.error("Generate bills error:", error);
 
       setNotification({
         type: "error",
@@ -99,6 +108,7 @@ export default function GenerateBillsButton({
           "Terjadi kesalahan saat melakukan generate bills.",
       });
     } finally {
+      requestInProgress.current = false;
       setLoading(false);
     }
   }

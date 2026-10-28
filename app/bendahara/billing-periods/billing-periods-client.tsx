@@ -295,10 +295,11 @@ export default function BillingPeriodsClient() {
                     <tr key={period.id}>
                       <td className="billing-period-action-column">
 												<GenerateBillsButton
-													periodId={period.id}
-													periodStatus={period.status}
-													billGenerationStatus={period.bill_generation_status}
-												/>
+                          periodId={period.id}
+                          periodStatus={period.status}
+                          billGenerationStatus={period.bill_generation_status}
+                          onGenerated={fetchPeriods}
+                        />
 											</td>
 
                       <td>{period.year}</td>
