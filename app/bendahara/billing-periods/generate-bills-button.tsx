@@ -3,13 +3,18 @@
 import { useRef, useState } from "react";
 
 import ConfirmDialog from "@/app/components/confirm-dialog";
-import Notification from "@/app/components/notification";
+
+type NotificationType = "success" | "error";
 
 type GenerateBillsButtonProps = {
   periodId: number;
   periodStatus: string;
   billGenerationStatus: string;
   onGenerated: () => Promise<void>;
+  onNotify: (
+    type: NotificationType,
+    message: string
+  ) => void;
 };
 
 export default function GenerateBillsButton({
@@ -17,17 +22,12 @@ export default function GenerateBillsButton({
   periodStatus,
   billGenerationStatus,
   onGenerated,
+  onNotify,
 }: GenerateBillsButtonProps) {
   const [loading, setLoading] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  // Mencegah request ganda sebelum perubahan state selesai dirender.
   const requestInProgress = useRef(false);
-
-  const [notification, setNotification] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
 
   const canGenerate =
     periodStatus === "OPEN" &&
@@ -80,33 +80,29 @@ export default function GenerateBillsButton({
       const data = await response.json();
 
       if (!response.ok) {
-        setNotification({
-          type: "error",
-          message:
-            data.message ||
-            "Gagal melakukan generate bills.",
-        });
+        onNotify(
+          "error",
+          data.message ||
+            "Gagal melakukan generate bills."
+        );
 
         return;
       }
 
-      setNotification({
-        type: "success",
-        message:
-          data.message ||
-          "Bills berhasil di-generate.",
-      });
+      onNotify(
+        "success",
+        data.message ||
+          "Bills berhasil di-generate."
+      );
 
-      // Ambil ulang data agar status billing period langsung diperbarui.
       await onGenerated();
     } catch (error) {
       console.error("Generate bills error:", error);
 
-      setNotification({
-        type: "error",
-        message:
-          "Terjadi kesalahan saat melakukan generate bills.",
-      });
+      onNotify(
+        "error",
+        "Terjadi kesalahan saat melakukan generate bills."
+      );
     } finally {
       requestInProgress.current = false;
       setLoading(false);
@@ -144,13 +140,6 @@ export default function GenerateBillsButton({
         loading={loading}
         onConfirm={handleGenerate}
         onCancel={() => setConfirmOpen(false)}
-      />
-
-      <Notification
-        open={notification !== null}
-        type={notification?.type}
-        message={notification?.message || ""}
-        onClose={() => setNotification(null)}
       />
     </>
   );

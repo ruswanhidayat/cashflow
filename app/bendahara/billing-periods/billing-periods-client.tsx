@@ -8,6 +8,7 @@ import DataFilter, {
 } from "@/app/components/data-filter";
 import GeneratePeriodButton from "./generate-period-button";
 import GenerateBillsButton from "./generate-bills-button";
+import Notification from "@/app/components/notification";
 
 type BillingPeriod = {
   id: number;
@@ -89,6 +90,11 @@ function formatDate(value: string) {
 export default function BillingPeriodsClient() {
   const [filters, setFilters] =
     useState<Filters>(initialFilters);
+  
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   const [page, setPage] = useState(1);
 
@@ -299,6 +305,9 @@ export default function BillingPeriodsClient() {
                           periodStatus={period.status}
                           billGenerationStatus={period.bill_generation_status}
                           onGenerated={fetchPeriods}
+                          onNotify={(type, message) => {
+                            setNotification({ type, message });
+                          }}
                         />
 											</td>
 
@@ -394,6 +403,12 @@ export default function BillingPeriodsClient() {
           </>
         )}
       </div>
+      <Notification
+        open={notification !== null}
+        type={notification?.type}
+        message={notification?.message || ""}
+        onClose={() => setNotification(null)}
+      />
     </>
   );
 }
