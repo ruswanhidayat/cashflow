@@ -2,10 +2,20 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 import { sql } from "@/lib/db";
+import { generateId } from "@/lib/transaction-ref";
 
 type Session = {
   userId: number;
   role: string;
+};
+
+type BillCandidate = {
+  user_id: number;
+  cash_type_id: number;
+};
+
+type BillTransactionRef = BillCandidate & {
+  transaction_ref: string;
 };
 
 export async function POST(
@@ -101,8 +111,88 @@ export async function POST(
       );
     }
 
-    // 3. Generate bills, catat ledger, dan update status
-    //    dalam satu transaksi database.
+    // 3. Siapkan kandidat tagihan dan transaction_ref.
+    //
+    // Kandidat mencakup:
+    // - Tagihan yang sudah ada tetapi belum tercatat di ledger.
+    // - Tagihan yang belum ada dan memenuhi syarat untuk dibuat.
+    //
+    // Setiap kandidat mendapatkan transaction_ref sebelum transaksi DB.
+    // Proses INSERT nantinya dibatasi hanya pada kandidat ini.
+
+    const billCandidates = (await sql`
+      SELECT
+        b.user_id,
+        b.cash_type_id
+      FROM bills b
+      WHERE b.period_id = ${periodId}
+        AND NOT EXISTS (
+          SELECT 1
+          FROM ledger l
+          WHERE l.reference_type = 'BIL'
+            AND l.reference_id = b.id
+        )
+
+      UNION
+
+      SELECT
+        u.id AS user_id,
+        ct.id AS cash_type_id
+      FROM users u
+      INNER JOIN cash_types ct
+        ON ct.is_active = TRUE
+      INNER JOIN LATERAL (
+        SELECT
+          br.id
+        FROM bill_references br
+        WHERE br.position_id = u.position_id
+          AND br.cash_type_id = ct.id
+          AND br.valid_from <= ${period.start_date}
+          AND (
+            br.valid_to IS NULL
+            OR br.valid_to >= ${period.start_date}
+          )
+        ORDER BY
+          br.valid_from DESC,
+          br.id DESC
+        LIMIT 1
+      ) br ON TRUE
+      WHERE u.is_active = TRUE
+        AND u.position_id IS NOT NULL
+        AND NOT EXISTS (
+          SELECT 1
+          FROM bills b
+          WHERE b.user_id = u.id
+            AND b.period_id = ${periodId}
+            AND b.cash_type_id = ct.id
+        )
+    `) as BillCandidate[];
+
+    const billPeriod =
+      String(period.month).padStart(2, "0") +
+      String(period.year);
+
+    const billTransactionRefs: BillTransactionRef[] =
+      billCandidates.map((candidate) => ({
+        user_id: Number(candidate.user_id),
+        cash_type_id: Number(candidate.cash_type_id),
+        transaction_ref: generateId(
+          "TRX",
+          billPeriod,
+          "BIL"
+        ),
+      }));
+
+    const candidateRefsJson = JSON.stringify(
+      billTransactionRefs
+    );
+
+    // 4. Generate bills, catat ledger, dan update status.
+    //
+    // Seluruh operasi berikut dijalankan dalam satu transaksi DB.
+    // Query INSERT bills dibatasi oleh daftar kandidat di atas,
+    // sehingga tidak membuat tagihan baru tanpa transaction_ref.
+
     const [
       insertedBills,
       insertedLedger,
@@ -110,9 +200,21 @@ export async function POST(
       periodUpdates,
       countResults,
     ] = await sql.transaction([
-      // A. Generate bills.
+      // A. Generate bills hanya untuk kandidat yang sudah disiapkan.
       // Tagihan yang sudah ada tidak dibuat ulang.
       sql`
+        WITH candidates AS (
+          SELECT
+            candidate.user_id,
+            candidate.cash_type_id
+          FROM jsonb_to_recordset(
+            ${candidateRefsJson}::jsonb
+          ) AS candidate(
+            user_id integer,
+            cash_type_id integer,
+            transaction_ref text
+          )
+        )
         INSERT INTO bills (
           user_id,
           period_id,
@@ -126,9 +228,13 @@ export async function POST(
           ct.id,
           br.id,
           br.amount
-        FROM users u
+        FROM candidates candidate
+        INNER JOIN users u
+          ON u.id = candidate.user_id
+          AND u.is_active = TRUE
         INNER JOIN cash_types ct
-          ON ct.is_active = TRUE
+          ON ct.id = candidate.cash_type_id
+          AND ct.is_active = TRUE
         INNER JOIN LATERAL (
           SELECT
             br.id,
@@ -146,8 +252,7 @@ export async function POST(
             br.id DESC
           LIMIT 1
         ) br ON TRUE
-        WHERE u.is_active = TRUE
-          AND u.position_id IS NOT NULL
+        WHERE u.position_id IS NOT NULL
         ON CONFLICT (
           user_id,
           period_id,
@@ -157,9 +262,22 @@ export async function POST(
         RETURNING id
       `,
 
-      // B. Catat tagihan yang belum memiliki entri BIL.
-      // Ledger menjadi sumber kebenaran, bukan flag di bills.
+      // B. Catat ledger untuk tagihan yang belum memiliki entri BIL.
+      // transaction_ref diambil dari daftar kandidat yang sama.
       sql`
+        WITH candidate_refs AS (
+          SELECT
+            candidate.user_id,
+            candidate.cash_type_id,
+            candidate.transaction_ref
+          FROM jsonb_to_recordset(
+            ${candidateRefsJson}::jsonb
+          ) AS candidate(
+            user_id integer,
+            cash_type_id integer,
+            transaction_ref text
+          )
+        )
         INSERT INTO ledger (
           user_id,
           reference_type,
@@ -173,11 +291,14 @@ export async function POST(
           b.user_id,
           'BIL',
           b.id,
-          'BIL-' || b.id::text,
+          candidate.transaction_ref,
           NULL,
           -b.amount,
           'Pencatatan tagihan #' || b.id::text
         FROM bills b
+        INNER JOIN candidate_refs candidate
+          ON candidate.user_id = b.user_id
+          AND candidate.cash_type_id = b.cash_type_id
         WHERE b.period_id = ${periodId}
           AND NOT EXISTS (
             SELECT 1
@@ -192,7 +313,7 @@ export async function POST(
         RETURNING id
       `,
 
-      // C. Isi timestamp untuk tagihan yang sudah tercatat.
+      // C. Isi timestamp untuk tagihan yang sudah tercatat di ledger.
       sql`
         UPDATE bills b
         SET ledger_recorded_at = NOW()
@@ -207,8 +328,7 @@ export async function POST(
         RETURNING id
       `,
 
-      // D. Update status billing period berdasarkan
-      //    jumlah tagihan yang seharusnya dan yang tersedia.
+      // D. Update status billing period berdasarkan jumlah tagihan.
       sql`
         WITH bill_counts AS (
           SELECT
@@ -218,7 +338,8 @@ export async function POST(
           INNER JOIN cash_types ct
             ON ct.is_active = TRUE
           INNER JOIN LATERAL (
-            SELECT br.id
+            SELECT
+              br.id
             FROM bill_references br
             WHERE br.position_id = u.position_id
               AND br.cash_type_id = ct.id
@@ -268,7 +389,8 @@ export async function POST(
         INNER JOIN cash_types ct
           ON ct.is_active = TRUE
         INNER JOIN LATERAL (
-          SELECT br.id
+          SELECT
+            br.id
           FROM bill_references br
           WHERE br.position_id = u.position_id
             AND br.cash_type_id = ct.id
@@ -291,7 +413,7 @@ export async function POST(
       `,
     ]);
 
-    // 4. Susun respons
+    // 5. Susun respons
     const expectedCount = Number(
       countResults[0].expected_count
     );
