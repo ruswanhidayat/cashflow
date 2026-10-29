@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import ResponsiveSelect from "@/app/components/responsive-select";
 
 import DataFilter, {
   type DataFilterField,
@@ -347,25 +348,34 @@ export default function BillsClient() {
               </span>
 
               <div className="pagination">
-                <label
-                  className="page-size-control"
-                  htmlFor="bills-page-size"
-                >
-                  Data per halaman
-                  <select
-                    id="bills-page-size"
-                    value={pageSize}
-                    onChange={(event) =>
-                      handlePageSizeChange(event.target.value)
-                    }
-                  >
-                    {PAGE_SIZE_OPTIONS.map((size) => (
-                      <option key={size} value={size}>
-                        {size}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <div className="page-size-control">
+                  <span>Data per halaman</span>
+
+                  <div className="page-size-select">
+                    <ResponsiveSelect
+                      id="bills-page-size"
+                      name="bills-page-size"
+                      label="data per halaman"
+                      value={[String(pageSize)]}
+                      options={PAGE_SIZE_OPTIONS.map((size) => ({
+                        value: String(size),
+                        label: String(size),
+                      }))}
+                      onChange={(values) => {
+                        const selected = Number(values[0]);
+
+                        if (
+                          selected === 10 ||
+                          selected === 25 ||
+                          selected === 50
+                        ) {
+                          setPageSize(selected);
+                          setPage(1);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
 
                 {pagination.totalPages > 1 && (
                   <>
