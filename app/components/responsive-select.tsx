@@ -176,7 +176,14 @@ export default function ResponsiveSelect({
       return;
     }
 
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
+    if (!isMobile) {
+      return;
+    }
+
     const originalOverflow = document.body.style.overflow;
+
     document.body.style.overflow = "hidden";
 
     return () => {
