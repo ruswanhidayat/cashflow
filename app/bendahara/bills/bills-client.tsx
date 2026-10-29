@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
@@ -23,6 +22,8 @@ type YearOption = {
   value: string;
   label: string;
 };
+
+type PageSize = 10 | 25 | 50;
 
 type SearchResponse = {
   data: BillRow[];
@@ -50,6 +51,9 @@ const initialFilters: Filters = {
   year: [],
 };
 
+const PAGE_SIZE_OPTIONS: PageSize[] = [10, 25, 50];
+const MAX_VISIBLE_PAGES = 5;
+
 const monthNames = [
   "Januari",
   "Februari",
@@ -74,13 +78,11 @@ function formatAmount(amount: number | string | null) {
 }
 
 export default function BillsClient() {
-  const [filters, setFilters] =
-    useState<Filters>(initialFilters);
-
+  const [filters, setFilters] = useState<Filters>(initialFilters);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<PageSize>(10);
 
   const [bills, setBills] = useState<BillRow[]>([]);
-
   const [years, setYears] = useState<YearOption[]>([]);
 
   const [pagination, setPagination] = useState({
@@ -106,16 +108,15 @@ export default function BillsClient() {
         body: JSON.stringify({
           ...filters,
           page,
+          pageSize,
         }),
       });
 
-      const result =
-        (await response.json()) as SearchResponse;
+      const result = (await response.json()) as SearchResponse;
 
       if (!response.ok) {
         throw new Error(
-          result.message ??
-            "Gagal mengambil data tagihan."
+          result.message ?? "Gagal mengambil data tagihan."
         );
       }
 
@@ -131,7 +132,7 @@ export default function BillsClient() {
     } finally {
       setLoading(false);
     }
-  }, [filters, page]);
+  }, [filters, page, pageSize]);
 
   useEffect(() => {
     void fetchBills();
@@ -193,6 +194,51 @@ export default function BillsClient() {
     setFilters(initialFilters);
     setPage(1);
   }
+
+  function handlePageSizeChange(value: string) {
+    const nextPageSize = Number(value);
+
+    if (
+      nextPageSize === 10 ||
+      nextPageSize === 25 ||
+      nextPageSize === 50
+    ) {
+      setPageSize(nextPageSize);
+      setPage(1);
+    }
+  }
+
+  // Maksimal lima nomor halaman, dengan halaman aktif di tengah
+  // jika masih memungkinkan.
+  const visiblePageStart = Math.max(
+    1,
+    Math.min(
+      page - Math.floor(MAX_VISIBLE_PAGES / 2),
+      pagination.totalPages - MAX_VISIBLE_PAGES + 1
+    )
+  );
+
+  const visiblePageEnd = Math.min(
+    pagination.totalPages,
+    visiblePageStart + MAX_VISIBLE_PAGES - 1
+  );
+
+  const visiblePages = Array.from(
+    {
+      length: Math.max(0, visiblePageEnd - visiblePageStart + 1),
+    },
+    (_, index) => visiblePageStart + index
+  );
+
+  const firstItem =
+    pagination.totalItems === 0
+      ? 0
+      : (pagination.page - 1) * pagination.pageSize + 1;
+
+  const lastItem = Math.min(
+    pagination.page * pagination.pageSize,
+    pagination.totalItems
+  );
 
   return (
     <>
@@ -264,9 +310,7 @@ export default function BillsClient() {
                     </th>
                   </tr>
                   <tr>
-                    <th className="text-right">
-                      Tagihan Kas
-                    </th>
+                    <th className="text-right">Tagihan Kas</th>
                     <th className="text-right">
                       Tagihan Paguyuban
                     </th>
@@ -298,66 +342,74 @@ export default function BillsClient() {
 
             <div className="table-footer">
               <span className="table-info">
-                Menampilkan{" "}
-                {(pagination.page - 1) *
-                  pagination.pageSize +
-                  1}
-                –
-                {Math.min(
-                  pagination.page * pagination.pageSize,
-                  pagination.totalItems
-                )}{" "}
-                dari {pagination.totalItems} data tagihan
+                Menampilkan {firstItem}–{lastItem} dari{" "}
+                {pagination.totalItems} data tagihan
               </span>
 
-              {pagination.totalPages > 1 && (
-                <div className="pagination">
-                  <button
-                    type="button"
-                    className="pagination-button"
-                    disabled={page <= 1}
-                    onClick={() =>
-                      setPage((current) => current - 1)
+              <div className="pagination">
+                <label
+                  className="page-size-control"
+                  htmlFor="bills-page-size"
+                >
+                  Data per halaman
+                  <select
+                    id="bills-page-size"
+                    value={pageSize}
+                    onChange={(event) =>
+                      handlePageSizeChange(event.target.value)
                     }
                   >
-                    Sebelumnya
-                  </button>
+                    {PAGE_SIZE_OPTIONS.map((size) => (
+                      <option key={size} value={size}>
+                        {size}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-                  {Array.from(
-                    { length: pagination.totalPages },
-                    (_, index) => index + 1
-                  ).map((pageNumber) => (
+                {pagination.totalPages > 1 && (
+                  <>
                     <button
-                      key={pageNumber}
                       type="button"
-                      className={`pagination-button ${
-                        pageNumber === pagination.page
-                          ? "active"
-                          : ""
-                      }`}
-                      disabled={
-                        pageNumber === pagination.page
+                      className="pagination-button"
+                      disabled={page <= 1}
+                      onClick={() =>
+                        setPage((current) => current - 1)
                       }
-                      onClick={() => setPage(pageNumber)}
                     >
-                      {pageNumber}
+                      Sebelumnya
                     </button>
-                  ))}
 
-                  <button
-                    type="button"
-                    className="pagination-button"
-                    disabled={
-                      page >= pagination.totalPages
-                    }
-                    onClick={() =>
-                      setPage((current) => current + 1)
-                    }
-                  >
-                    Berikutnya
-                  </button>
-                </div>
-              )}
+                    {visiblePages.map((pageNumber) => (
+                      <button
+                        key={pageNumber}
+                        type="button"
+                        className={`pagination-button ${
+                          pageNumber === page ? "active" : ""
+                        }`}
+                        disabled={pageNumber === page}
+                        onClick={() => setPage(pageNumber)}
+                        aria-current={
+                          pageNumber === page ? "page" : undefined
+                        }
+                      >
+                        {pageNumber}
+                      </button>
+                    ))}
+
+                    <button
+                      type="button"
+                      className="pagination-button"
+                      disabled={page >= pagination.totalPages}
+                      onClick={() =>
+                        setPage((current) => current + 1)
+                      }
+                    >
+                      Berikutnya
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </>
         )}

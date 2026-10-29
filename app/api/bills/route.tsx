@@ -1,10 +1,10 @@
-
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { sql } from "@/lib/db";
 
-const PAGE_SIZE = 10;
+const ALLOWED_PAGE_SIZES = [10, 25, 50] as const;
+const DEFAULT_PAGE_SIZE = 10;
 
 type Session = {
   userId: number;
@@ -16,6 +16,7 @@ type BillFilters = {
   month?: unknown;
   year?: unknown;
   page?: unknown;
+  pageSize?: unknown;
 };
 
 function jsonError(message: string, status: number) {
@@ -145,7 +146,7 @@ export async function POST(request: Request) {
       typeof body.name === "string"
         ? body.name.trim().slice(0, 100)
         : "";
-    
+
     // 5. Validasi filter bulan
     let months: number[] = [];
 
@@ -153,7 +154,10 @@ export async function POST(request: Request) {
       const parsedMonths =
         parsePositiveIntegerArray(body.month, 12);
 
-      if (parsedMonths === null) {
+      if (
+        parsedMonths === null ||
+        parsedMonths.some((month) => month < 1)
+      ) {
         return jsonError(
           "Filter bulan tidak valid.",
           400
@@ -161,13 +165,6 @@ export async function POST(request: Request) {
       }
 
       months = parsedMonths;
-
-      if (months.some((month) => month < 1)) {
-        return jsonError(
-          "Filter bulan tidak valid.",
-          400
-        );
-      }
     }
 
     // 6. Validasi filter tahun
@@ -187,7 +184,7 @@ export async function POST(request: Request) {
       yearsFilter = parsedYears;
     }
 
-    // 7. Validasi halaman
+    // 7. Validasi nomor halaman
     let requestedPage = 1;
 
     if (body.page !== undefined) {
@@ -203,7 +200,29 @@ export async function POST(request: Request) {
       requestedPage = parsedPage;
     }
 
-    // 8. Ambil opsi tahun dari periode yang memiliki tagihan
+    // 8. Validasi jumlah data per halaman
+    let pageSize = DEFAULT_PAGE_SIZE;
+
+    if (body.pageSize !== undefined) {
+      const parsedPageSize =
+        parsePositiveInteger(body.pageSize);
+
+      if (
+        parsedPageSize === null ||
+        !ALLOWED_PAGE_SIZES.includes(
+          parsedPageSize as (typeof ALLOWED_PAGE_SIZES)[number]
+        )
+      ) {
+        return jsonError(
+          "Jumlah data per halaman harus 10, 25, atau 50.",
+          400
+        );
+      }
+
+      pageSize = parsedPageSize;
+    }
+
+    // 9. Ambil opsi tahun dari periode yang memiliki tagihan
     const years = await sql`
       SELECT DISTINCT
         bp.year
@@ -213,7 +232,7 @@ export async function POST(request: Request) {
       ORDER BY bp.year DESC
     `;
 
-    // 9. Hitung total baris sesuai filter
+    // 10. Hitung total data sesuai filter
     const countResult = await sql`
       SELECT COUNT(*) AS total
       FROM (
@@ -248,7 +267,7 @@ export async function POST(request: Request) {
 
     const totalPages = Math.max(
       1,
-      Math.ceil(totalItems / PAGE_SIZE)
+      Math.ceil(totalItems / pageSize)
     );
 
     const currentPage = Math.min(
@@ -256,9 +275,9 @@ export async function POST(request: Request) {
       totalPages
     );
 
-    const offset = (currentPage - 1) * PAGE_SIZE;
+    const offset = (currentPage - 1) * pageSize;
 
-    // 10. Ambil data untuk halaman aktif
+    // 11. Ambil data untuk halaman aktif
     const bills = await sql`
       SELECT
         u.id AS user_id,
@@ -310,16 +329,16 @@ export async function POST(request: Request) {
         bp.year DESC,
         bp.month DESC,
         u.name ASC
-      LIMIT ${PAGE_SIZE}
+      LIMIT ${pageSize}
       OFFSET ${offset}
     `;
 
-    // 11. Respons untuk halaman
+    // 12. Respons untuk halaman
     return NextResponse.json({
       data: bills,
       pagination: {
         page: currentPage,
-        pageSize: PAGE_SIZE,
+        pageSize,
         totalItems,
         totalPages,
       },
