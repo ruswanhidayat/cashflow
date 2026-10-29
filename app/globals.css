@@ -1631,6 +1631,33 @@ body::before {
   cursor: not-allowed;
 }
 
+/* =========================
+   PAYMENTS FILTER LAYOUT
+   ========================= */
+
+.payments-filter-layout {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+}
+
+.payments-filter-layout > .filter-group {
+  min-width: 0;
+}
+
+.payments-filter-layout > .filter-actions {
+  width: auto;
+}
+
+@media (max-width: 700px) {
+  .payments-filter-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .payments-filter-layout > .filter-actions {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
 /* =========================================================
    MOBILE LAYOUT AND COMPONENT OVERRIDES
    ========================================================= */

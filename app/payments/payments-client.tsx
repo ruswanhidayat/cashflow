@@ -78,10 +78,10 @@ const monthNames = [
 ];
 
 const statusOptions = [
-  { value: "PENDING", label: "Menunggu Konfirmasi" },
-  { value: "CONFIRMED", label: "Dikonfirmasi" },
-  { value: "REJECTED", label: "Ditolak" },
-  { value: "CANCELLED", label: "Dibatalkan" },
+  { value: "PENDING", label: "Pending" },
+  { value: "CONFIRMED", label: "Confirmed" },
+  { value: "REJECTED", label: "Rejected" },
+  { value: "CANCELLED", label: "Cancelled" },
 ];
 
 function formatAmount(amount: number | string | null) {
@@ -342,6 +342,7 @@ export default function PaymentsClient({
           values={filters}
           onChange={handleFilterChange}
           onReset={handleReset}
+          layoutClassName="payments-filter-layout"
         />
 
         {error && (

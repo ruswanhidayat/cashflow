@@ -1,4 +1,3 @@
-
 "use client";
 
 import ResponsiveSelect from "@/app/components/responsive-select";
@@ -24,6 +23,7 @@ type DataFilterProps = {
   values: Record<string, DataFilterValue>;
   onChange: (key: string, value: DataFilterValue) => void;
   onReset: () => void;
+  layoutClassName?: string;
 };
 
 export default function DataFilter({
@@ -31,6 +31,7 @@ export default function DataFilter({
   values,
   onChange,
   onReset,
+  layoutClassName = "",
 }: DataFilterProps) {
   const hasActiveFilter = fields.some((field) => {
     const value = values[field.key];
@@ -45,7 +46,9 @@ export default function DataFilter({
   }
 
   return (
-    <div className="table-filter data-filter">
+    <div
+      className={`table-filter data-filter ${layoutClassName}`.trim()}
+    >
       {fields.map((field) => {
         const value = values[field.key];
 
