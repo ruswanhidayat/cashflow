@@ -78,10 +78,10 @@ const monthNames = [
 ];
 
 const statusOptions = [
-  { value: "PENDING", label: "Pending" },
-  { value: "CONFIRMED", label: "Confirmed" },
-  { value: "REJECTED", label: "Rejected" },
-  { value: "CANCELLED", label: "Cancelled" },
+  { value: "PENDING", label: "PENDING" },
+  { value: "CONFIRMED", label: "CONFIRMED" },
+  { value: "REJECTED", label: "REJECTED" },
+  { value: "CANCELLED", label: "CANCELLED" },
 ];
 
 function formatAmount(amount: number | string | null) {
@@ -427,7 +427,7 @@ export default function PaymentsClient({
                         <span
                           className={`status-badge status-${payment.status.toLowerCase()}`}
                         >
-                          {getStatusLabel(payment.status)}
+                          {payment.status}
                         </span>
                       </td>
                     </tr>
@@ -457,6 +457,7 @@ export default function PaymentsClient({
                         label: String(size),
                       }))}
                       onChange={handlePageSizeChange}
+                      dropdownAlign="right"
                     />
                   </div>
                 </div>

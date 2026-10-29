@@ -19,6 +19,7 @@ type ResponsiveSelectProps = {
   clearable?: boolean;
   onClear?: () => void;
   placeholder?: string;
+  dropdownAlign?: "left" | "right";
 };
 
 export default function ResponsiveSelect({
@@ -33,6 +34,7 @@ export default function ResponsiveSelect({
   clearable = false,
   onClear,
   placeholder,
+  dropdownAlign = "left",
 }: ResponsiveSelectProps) {
   const [selectedValues, setSelectedValues] =
     useState<string[]>(value);
@@ -335,6 +337,8 @@ export default function ResponsiveSelect({
         <div
           className={`responsive-select-dropdown ${
             dropUp ? "drop-up" : ""
+          } ${
+            dropdownAlign === "right" ? "align-right" : ""
           }`}
           role="listbox"
           aria-label={`Pilih ${label ?? "opsi"}`}

@@ -1146,6 +1146,34 @@ body::before {
   border: 1px solid rgba(255, 255, 255, 0.18);
   color: rgba(255, 255, 255, 0.65);
 }
+
+/* =========================
+   PAYMENT STATUS BADGES
+   ========================= */
+
+.status-pending {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.status-confirmed {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.status-rejected {
+  color: #fca5a5;
+  background: rgba(252, 165, 165, 0.12);
+  border: 1px solid rgba(252, 165, 165, 0.3);
+}
+
+.status-cancelled {
+  color: #a9bac4;
+  background: rgba(169, 186, 196, 0.1);
+  border: 1px solid rgba(169, 186, 196, 0.2);
+}
 /* =========================
  TABLE FOOTER
 \========================= */
@@ -1448,6 +1476,11 @@ body::before {
 .responsive-select-dropdown.drop-up {
   top: auto;
   bottom: calc(100% + 6px);
+}
+
+.responsive-select-dropdown.align-right {
+  right: 0;
+  left: auto;
 }
 .responsive-select-option {
   display: flex;
