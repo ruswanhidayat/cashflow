@@ -12,6 +12,8 @@ type Role = {
   name: string;
 };
 
+type AppRole = "USER" | "BEND";
+
 export default async function PaymentsPage() {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("session");
@@ -22,7 +24,7 @@ export default async function PaymentsPage() {
 
   let session: {
     userId: number;
-    role: string;
+    role: AppRole;
   };
 
   try {
