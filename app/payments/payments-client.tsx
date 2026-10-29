@@ -457,7 +457,7 @@ export default function PaymentsClient({
                         label: String(size),
                       }))}
                       onChange={handlePageSizeChange}
-                      dropdownAlign="right"
+                      dropdownAlign="auto"
                     />
                   </div>
                 </div>

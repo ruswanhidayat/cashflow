@@ -19,7 +19,7 @@ type ResponsiveSelectProps = {
   clearable?: boolean;
   onClear?: () => void;
   placeholder?: string;
-  dropdownAlign?: "left" | "right";
+  dropdownAlign?: "left" | "right" | "auto";
 };
 
 export default function ResponsiveSelect({
@@ -43,6 +43,7 @@ export default function ResponsiveSelect({
   const [dropUp, setDropUp] = useState(false);
   const [dropdownMaxHeight, setDropdownMaxHeight] =
     useState(280);
+  const [alignRight, setAlignRight] = useState(false);
 
   const selectRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -83,6 +84,16 @@ export default function ResponsiveSelect({
       const viewportHeight = window.innerHeight;
       const gap = 6;
       const viewportPadding = 12;
+      const dropdownWidth = Math.max(rect.width, 140);
+
+      if (dropdownAlign === "auto") {
+        setAlignRight(
+          rect.left + dropdownWidth >
+            window.innerWidth - viewportPadding
+        );
+      } else {
+        setAlignRight(dropdownAlign === "right");
+      }
 
       const spaceBelow =
         viewportHeight - rect.bottom - gap - viewportPadding;
@@ -129,7 +140,7 @@ export default function ResponsiveSelect({
         true
       );
     };
-  }, [isOpen, options.length]);
+  }, [isOpen, options.length, dropdownAlign]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -338,7 +349,7 @@ export default function ResponsiveSelect({
           className={`responsive-select-dropdown ${
             dropUp ? "drop-up" : ""
           } ${
-            dropdownAlign === "right" ? "align-right" : ""
+            alignRight ? "align-right" : ""
           }`}
           role="listbox"
           aria-label={`Pilih ${label ?? "opsi"}`}
