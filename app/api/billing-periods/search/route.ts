@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 
 import { sql } from "@/lib/db";
 
-const PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 10;
+const ALLOWED_PAGE_SIZES = [10, 25, 50] as const;
 
 type Session = {
   userId: number;
@@ -15,13 +16,16 @@ type SearchFilters = {
   month?: unknown;
   status?: unknown;
   page?: unknown;
+  pageSize?: unknown;
 };
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ message }, { status });
 }
 
-function parsePositiveInteger(value: unknown): number | null {
+function parsePositiveInteger(
+  value: unknown
+): number | null {
   if (
     typeof value !== "string" &&
     typeof value !== "number"
@@ -157,7 +161,10 @@ export async function POST(request: Request) {
     }
 
     // 4. Validasi tahun
-    const yearResult = parseIntegerFilter(body.year, "tahun");
+    const yearResult = parseIntegerFilter(
+      body.year,
+      "tahun"
+    );
 
     if (yearResult.error) {
       return jsonError(yearResult.error, 400);
@@ -167,44 +174,81 @@ export async function POST(request: Request) {
     const yearsCsv = years.join(",");
 
     // 5. Validasi bulan
-    const monthResult = parseIntegerFilter(body.month, "bulan");
+    const monthResult = parseIntegerFilter(
+      body.month,
+      "bulan"
+    );
 
     if (monthResult.error) {
       return jsonError(monthResult.error, 400);
     }
 
     const months = monthResult.values;
-    const monthsCsv = months.join(",");    
+    const monthsCsv = months.join(",");
 
     // 6. Validasi status
     let status: string | null = null;
 
-    if (body.status !== undefined && body.status !== "") {
+    if (
+      body.status !== undefined &&
+      body.status !== ""
+    ) {
       if (
         body.status !== "DRAFT" &&
         body.status !== "OPEN" &&
         body.status !== "CLOSED"
       ) {
-        return jsonError("Filter status tidak valid.", 400);
+        return jsonError(
+          "Filter status tidak valid.",
+          400
+        );
       }
 
       status = body.status;
     }
 
-    // 7. Validasi halaman
+    // 7. Validasi nomor halaman
     let requestedPage = 1;
 
     if (body.page !== undefined) {
-      const parsedPage = parsePositiveInteger(body.page);
+      const parsedPage = parsePositiveInteger(
+        body.page
+      );
 
       if (parsedPage === null) {
-        return jsonError("Nomor halaman tidak valid.", 400);
+        return jsonError(
+          "Nomor halaman tidak valid.",
+          400
+        );
       }
 
       requestedPage = parsedPage;
     }
 
-    // 8. Ambil jumlah data sesuai filter
+    // 8. Validasi jumlah data per halaman
+    let pageSize = DEFAULT_PAGE_SIZE;
+
+    if (body.pageSize !== undefined) {
+      const parsedPageSize = parsePositiveInteger(
+        body.pageSize
+      );
+
+      if (
+        parsedPageSize === null ||
+        !ALLOWED_PAGE_SIZES.includes(
+          parsedPageSize as (typeof ALLOWED_PAGE_SIZES)[number]
+        )
+      ) {
+        return jsonError(
+          "Jumlah data per halaman harus 10, 25, atau 50.",
+          400
+        );
+      }
+
+      pageSize = parsedPageSize;
+    }
+
+    // 9. Hitung total data sesuai filter
     const countResult = await sql`
       SELECT COUNT(*) AS total
       FROM billing_periods
@@ -231,7 +275,7 @@ export async function POST(request: Request) {
 
     const totalPages = Math.max(
       1,
-      Math.ceil(totalItems / PAGE_SIZE)
+      Math.ceil(totalItems / pageSize)
     );
 
     const currentPage = Math.min(
@@ -239,9 +283,9 @@ export async function POST(request: Request) {
       totalPages
     );
 
-    const offset = (currentPage - 1) * PAGE_SIZE;
+    const offset = (currentPage - 1) * pageSize;
 
-    // 9. Ambil data halaman aktif
+    // 10. Ambil data halaman aktif
     const periods = await sql`
       SELECT
         id,
@@ -270,34 +314,36 @@ export async function POST(request: Request) {
           OR status = ${status}
         )
       ORDER BY
-				CASE
-					WHEN status = 'OPEN'
-						AND bill_generation_status <> 'GENERATED' THEN 1
-					WHEN status = 'OPEN'
-						AND bill_generation_status = 'GENERATED' THEN 2
-					WHEN status = 'DRAFT' THEN 3
-					WHEN status = 'CLOSED' THEN 4
-					ELSE 5
-				END ASC,
-				year ASC,
-				month ASC
-			LIMIT ${PAGE_SIZE}
-			OFFSET ${offset}
+        CASE
+          WHEN status = 'OPEN'
+            AND bill_generation_status <> 'GENERATED'
+            THEN 1
+          WHEN status = 'OPEN'
+            AND bill_generation_status = 'GENERATED'
+            THEN 2
+          WHEN status = 'DRAFT' THEN 3
+          WHEN status = 'CLOSED' THEN 4
+          ELSE 5
+        END ASC,
+        year ASC,
+        month ASC
+      LIMIT ${pageSize}
+      OFFSET ${offset}
     `;
 
-    // 10. Ambil opsi tahun untuk dropdown filter
+    // 11. Ambil opsi tahun untuk dropdown filter
     const yearOptions = await sql`
       SELECT DISTINCT year
       FROM billing_periods
       ORDER BY year DESC
     `;
 
-    // 11. Kembalikan data dan metadata pagination
+    // 12. Kembalikan data dan metadata pagination
     return NextResponse.json({
       data: periods,
       pagination: {
         page: currentPage,
-        pageSize: PAGE_SIZE,
+        pageSize,
         totalItems,
         totalPages,
       },
@@ -309,7 +355,10 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("POST /api/billing-periods/search error:", error);
+    console.error(
+      "POST /api/billing-periods/search error:",
+      error
+    );
 
     return jsonError(
       "Gagal mengambil data billing period.",
