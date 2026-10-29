@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -39,8 +38,12 @@ export default function ResponsiveSelect({
     useState<string[]>(value);
 
   const [isOpen, setIsOpen] = useState(false);
+  const [dropUp, setDropUp] = useState(false);
+  const [dropdownMaxHeight, setDropdownMaxHeight] =
+    useState(280);
 
   const selectRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const selectedLabels = options
     .filter((option) => selectedValues.includes(option.value))
@@ -60,6 +63,71 @@ export default function ResponsiveSelect({
       setIsOpen(false);
     }
   }, [disabled]);
+
+  // Tentukan arah dropdown berdasarkan ruang yang tersedia.
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    function updateDropdownPosition() {
+      const trigger = triggerRef.current;
+
+      if (!trigger) {
+        return;
+      }
+
+      const rect = trigger.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const gap = 6;
+      const viewportPadding = 12;
+
+      const spaceBelow =
+        viewportHeight - rect.bottom - gap - viewportPadding;
+
+      const spaceAbove =
+        rect.top - gap - viewportPadding;
+
+      const estimatedHeight = Math.min(
+        options.length * 40 + 10,
+        280
+      );
+
+      const shouldOpenUp =
+        spaceBelow < estimatedHeight &&
+        spaceAbove > spaceBelow;
+
+      setDropUp(shouldOpenUp);
+
+      setDropdownMaxHeight(
+        Math.max(
+          80,
+          Math.min(
+            280,
+            shouldOpenUp ? spaceAbove : spaceBelow
+          )
+        )
+      );
+    }
+
+    updateDropdownPosition();
+
+    window.addEventListener("resize", updateDropdownPosition);
+    window.addEventListener("scroll", updateDropdownPosition, true);
+
+    return () => {
+      window.removeEventListener(
+        "resize",
+        updateDropdownPosition
+      );
+
+      window.removeEventListener(
+        "scroll",
+        updateDropdownPosition,
+        true
+      );
+    };
+  }, [isOpen, options.length]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -115,6 +183,14 @@ export default function ResponsiveSelect({
       document.body.style.overflow = originalOverflow;
     };
   }, [isOpen]);
+
+  function toggleDropdown() {
+    if (disabled) {
+      return;
+    }
+
+    setIsOpen((current) => !current);
+  }
 
   function handleSelect(nextValue: string) {
     if (multiple) {
@@ -187,6 +263,8 @@ export default function ResponsiveSelect({
       className={`responsive-select ${
         isOpen ? "open" : ""
       } ${
+        dropUp ? "drop-up" : ""
+      } ${
         clearable && selectedValues.length > 0
           ? "has-clear"
           : ""
@@ -202,11 +280,10 @@ export default function ResponsiveSelect({
       ))}
 
       <button
+        ref={triggerRef}
         type="button"
         className="responsive-select-trigger"
-        onClick={() =>
-          !disabled && setIsOpen((current) => !current)
-        }
+        onClick={toggleDropdown}
         disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -249,10 +326,15 @@ export default function ResponsiveSelect({
 
       {isOpen && (
         <div
-          className="responsive-select-dropdown"
+          className={`responsive-select-dropdown ${
+            dropUp ? "drop-up" : ""
+          }`}
           role="listbox"
           aria-label={`Pilih ${label ?? "opsi"}`}
           aria-multiselectable={multiple}
+          style={{
+            maxHeight: `${dropdownMaxHeight}px`,
+          }}
         >
           {renderOptions()}
         </div>
